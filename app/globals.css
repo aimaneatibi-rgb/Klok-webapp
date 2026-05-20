@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-lime text-ink;
+  }
+}
+
+@layer components {
+  /* KLOK button styles */
+  .btn-primary {
+    @apply bg-ink text-paper px-4 py-2 rounded-md font-medium hover:bg-ink-soft transition-colors;
+  }
+  .btn-lime {
+    @apply bg-lime text-ink px-4 py-2 rounded-md font-semibold hover:bg-lime-dark transition-colors;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-ink border border-stone-300 px-4 py-2 rounded-md font-medium hover:bg-stone-100 transition-colors;
+  }
+
+  /* KLOK logo styling */
+  .logo-mark {
+    @apply font-serif font-semibold text-2xl inline-flex items-baseline;
+  }
+  .logo-mark .dot {
+    @apply inline-block w-2 h-2 bg-lime ml-1 -translate-y-px;
+  }
+
+  /* Eyebrow text */
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-stone-500 font-medium;
+  }
+  .eyebrow.lime {
+    @apply text-lime-dark;
+  }
+}
