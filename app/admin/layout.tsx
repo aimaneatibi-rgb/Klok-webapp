@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   LayoutDashboard,
+  TrendingUp,
   Building2,
   Users,
   Clock,
@@ -71,6 +72,14 @@ export default async function AdminLayout({
           </NavLink>
 
           <div className="eyebrow px-3 mb-2 mt-6">Financieel</div>
+          <NavLink href="/admin/kpi" icon={<TrendingUp size={16} />}>
+            <span className="flex items-center gap-1.5">
+              KPI · Groei
+              <span className="text-[9px] bg-lime/30 text-lime-dark px-1 py-0.5 rounded font-bold">
+                LIVE
+              </span>
+            </span>
+          </NavLink>
           <NavLink href="/admin/financien" icon={<Wallet size={16} />}>
             Financiën
           </NavLink>

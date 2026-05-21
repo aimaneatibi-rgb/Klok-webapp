@@ -234,6 +234,14 @@ function ShiftCard({
             </span>
             {dressCode && <span>👔 {dressCode}</span>}
           </div>
+          <div className="mt-2">
+            <span
+              className="inline-flex items-center gap-1 font-mono text-xs font-bold bg-lime/30 text-lime-dark px-2 py-0.5 rounded"
+              title="Referral bonus — verdien dit als jij iemand voor deze shift aanbrengt (€1/u)"
+            >
+              ✨ € {hours.toFixed(0)} referral bonus
+            </span>
+          </div>
         </div>
         <div className="shrink-0">
           {alreadyResponded ? (

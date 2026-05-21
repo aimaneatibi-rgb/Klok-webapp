@@ -92,6 +92,41 @@ export default async function VacancyDetailPage({
         </p>
       </div>
 
+      {/* Referral bonus — donker ink met lime accent (marketing-style) */}
+      <div className="relative overflow-hidden bg-ink text-paper rounded-lg p-5 mb-4">
+        <div
+          className="absolute top-1/2 -right-20 w-64 h-64 rounded-full bg-lime opacity-[0.12] -translate-y-1/2"
+          style={{ filter: "blur(80px)" }}
+        />
+        <div className="relative z-10 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-lime mb-1">
+              ✨ Referral bonus
+            </div>
+            <div className="font-serif text-2xl font-medium leading-tight">
+              € 100,—
+            </div>
+            <p className="text-xs text-stone-400 mt-1">
+              Verdien dit als jij iemand aanbrengt die wordt aangenomen.
+              Deel je referral link via{" "}
+              <Link
+                href="/werknemer/referrals"
+                className="text-lime underline hover:text-lime-dark"
+              >
+                Referrals
+              </Link>
+              .
+            </p>
+          </div>
+          <Link
+            href="/werknemer/referrals"
+            className="bg-lime text-ink px-4 py-2 rounded-md text-sm font-semibold hover:bg-lime-dark transition-colors whitespace-nowrap"
+          >
+            Deel link →
+          </Link>
+        </div>
+      </div>
+
       {/* Media gallery */}
       {mediaUrls.length > 0 && (
         <div className="mb-4">

@@ -41,7 +41,42 @@ export const SECTOR_LABELS: Record<string, string> = Object.fromEntries(
   SECTORS.map((s) => [s.value, s.label])
 );
 
+// Emoji per sector — gebruikt als fallback visual wanneer een vacature/shift
+// geen foto heeft. Voorkomt witte plekken in grid layout.
+export const SECTOR_EMOJI: Record<string, string> = {
+  horeca: "🍽️",
+  retail: "🛍️",
+  wholesale: "📦",
+  logistics: "🚚",
+  delivery: "🚲",
+  construction: "🔨",
+  healthcare: "⚕️",
+  childcare: "🧸",
+  education: "📚",
+  ict: "💻",
+  finance: "💰",
+  cleaning: "🧹",
+  security: "🛡️",
+  manufacturing: "🏭",
+  agriculture: "🌾",
+  automotive: "🚗",
+  beauty_wellness: "💆",
+  culture_sports: "🎭",
+  events: "🎉",
+  marketing_media: "📣",
+  real_estate: "🏘️",
+  energy_utilities: "⚡",
+  government_nonprofit: "🏛️",
+  personal_services: "✨",
+  hospitality_lodging: "🏨",
+};
+
 export function getSectorLabel(value: string | null | undefined): string {
   if (!value) return "—";
   return SECTOR_LABELS[value] ?? value;
+}
+
+export function getSectorEmoji(value: string | null | undefined): string {
+  if (!value) return "💼";
+  return SECTOR_EMOJI[value] ?? "💼";
 }

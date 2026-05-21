@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSectorEmoji } from "@/lib/sectors";
 import Link from "next/link";
+
+const PAGE_SIZE = 15;
 
 const STATUSES = ["all", "open", "paused", "filled", "archived"] as const;
 const STATUS_LABELS: Record<string, string> = {
@@ -13,18 +16,20 @@ const STATUS_LABELS: Record<string, string> = {
 function daysAgo(iso: string) {
   const ms = Date.now() - new Date(iso).getTime();
   const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-  if (days === 0) return "Vandaag geplaatst";
-  if (days === 1) return "1 dag geleden";
-  return `${days} dagen geleden`;
+  if (days === 0) return "Vandaag";
+  if (days === 1) return "1 dag";
+  return `${days}d`;
 }
 
 export default async function VacaturesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const { status } = await searchParams;
+  const { status, page: pageParam } = await searchParams;
   const activeStatus = (status as (typeof STATUSES)[number]) ?? "all";
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const offset = (page - 1) * PAGE_SIZE;
 
   const supabase = await createClient();
   const {
@@ -59,7 +64,6 @@ export default async function VacaturesPage({
       `
       id,
       title,
-      description,
       status,
       hours_per_week,
       contract_months,
@@ -67,7 +71,6 @@ export default async function VacaturesPage({
       salary_max_cents,
       match_fee_cents,
       monthly_fee_cents,
-      perks,
       media_urls,
       created_at,
       vacancy_applications ( id, status )
@@ -75,18 +78,29 @@ export default async function VacaturesPage({
       { count: "exact" }
     )
     .eq("employer_id", employer.id)
-    .order("created_at", { ascending: false })
-    .limit(100);
+    .order("created_at", { ascending: false });
 
   if (activeStatus !== "all") {
     query = query.eq("status", activeStatus);
   }
 
-  const { data: vacancies, count } = await query;
+  const { data: vacancies, count } = await query.range(
+    offset,
+    offset + PAGE_SIZE - 1
+  );
+  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
+
+  const buildPageUrl = (p: number) => {
+    const params = new URLSearchParams();
+    if (activeStatus !== "all") params.set("status", activeStatus);
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return `/dashboard/vacatures${qs ? `?${qs}` : ""}`;
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
+      <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
         <div>
           <span className="eyebrow">— VASTE BANEN</span>
           <h1 className="font-serif text-4xl font-medium tracking-tight mt-2">
@@ -105,8 +119,7 @@ export default async function VacaturesPage({
         </Link>
       </div>
 
-      {/* Filter pills */}
-      <div className="flex items-center gap-2 mb-6 flex-wrap">
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
         {STATUSES.map((s) => (
           <Link
             key={s}
@@ -115,7 +128,7 @@ export default async function VacaturesPage({
                 ? "/dashboard/vacatures"
                 : `/dashboard/vacatures?status=${s}`
             }
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
               activeStatus === s
                 ? "bg-ink text-paper"
                 : "bg-paper border border-stone-200 hover:border-ink"
@@ -125,7 +138,7 @@ export default async function VacaturesPage({
           </Link>
         ))}
         <span className="ml-auto font-mono text-xs text-stone-500">
-          {count ?? 0} {(count ?? 0) === 1 ? "vacature" : "vacatures"}
+          {count ?? 0} totaal
         </span>
       </div>
 
@@ -151,126 +164,181 @@ export default async function VacaturesPage({
           )}
         </div>
       ) : (
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
-          {vacancies.map((v) => {
-            const applications = Array.isArray(v.vacancy_applications)
-              ? v.vacancy_applications
-              : [];
-            const pendingApps = applications.filter(
-              (a) => a.status === "pending"
-            ).length;
-            const totalApps = applications.length;
-            const media = (v.media_urls as string[] | null) ?? [];
-            const perks = (v.perks as string[] | null) ?? [];
-            const salary =
-              v.salary_min_cents && v.salary_max_cents
-                ? `€${(v.salary_min_cents / 100).toFixed(0)}–€${(v.salary_max_cents / 100).toFixed(0)}`
-                : v.salary_max_cents
-                  ? `tot €${(v.salary_max_cents / 100).toFixed(0)}`
-                  : "Op aanvraag";
+        <>
+          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
+            {vacancies.map((v) => {
+              const applications = Array.isArray(v.vacancy_applications)
+                ? v.vacancy_applications
+                : [];
+              const pendingApps = applications.filter(
+                (a) => a.status === "pending"
+              ).length;
+              const totalApps = applications.length;
+              const media = (v.media_urls as string[] | null) ?? [];
+              const salary =
+                v.salary_min_cents && v.salary_max_cents
+                  ? `€${(v.salary_min_cents / 100).toFixed(0)}–${(v.salary_max_cents / 100).toFixed(0)}`
+                  : v.salary_max_cents
+                    ? `tot €${(v.salary_max_cents / 100).toFixed(0)}`
+                    : "—";
 
-            return (
-              <Link
-                key={v.id}
-                href={`/dashboard/vacatures/${v.id}`}
-                className="group bg-paper border border-stone-200 rounded-lg overflow-hidden hover:border-stone-400 transition-colors flex flex-col"
-              >
-                {media[0] && (
-                  <div className="aspect-[16/10] bg-stone-100 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={media[0]}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
+              return (
+                <Link
+                  key={v.id}
+                  href={`/dashboard/vacatures/${v.id}`}
+                  className="group bg-paper border border-stone-200 rounded-lg overflow-hidden hover:border-stone-400 transition-colors flex flex-col"
+                >
+                  {media[0] ? (
+                    <div className="aspect-[16/9] bg-stone-100 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={media[0]}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[16/9] bg-cream border-b border-stone-100 flex items-center justify-center">
+                      <span className="text-5xl opacity-40 select-none">
+                        {getSectorEmoji(employer.sector)}
+                      </span>
+                    </div>
+                  )}
 
-                <div className="p-5 flex flex-col gap-3 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="eyebrow truncate">
-                      {employer.company_name}
-                    </span>
-                    <StatusPill status={v.status} />
-                  </div>
+                  <div className="p-3 flex flex-col gap-1.5 flex-1">
+                    <div className="flex items-start justify-between gap-1.5">
+                      <span className="eyebrow text-[10px] truncate">
+                        {employer.company_name}
+                      </span>
+                      <StatusPill status={v.status} />
+                    </div>
 
-                  <h3 className="font-serif text-xl font-medium tracking-tight leading-snug">
-                    {v.title}
-                  </h3>
+                    <h3 className="font-serif text-base font-medium leading-snug tracking-tight line-clamp-2 min-h-[2.6em]">
+                      {v.title}
+                    </h3>
 
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-stone-700">
-                    <span>⏱ {v.hours_per_week} uur/wk</span>
-                    <span>
-                      📜{" "}
-                      {v.contract_months >= 120
-                        ? "Vast"
-                        : `${v.contract_months}mnd`}
-                    </span>
-                  </div>
-                  <div className="text-sm font-semibold text-ink">
-                    💶 {salary}/m
-                  </div>
+                    <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-stone-600">
+                      <span>⏱ {v.hours_per_week}u</span>
+                      <span>
+                        📜 {v.contract_months >= 120 ? "Vast" : `${v.contract_months}m`}
+                      </span>
+                    </div>
+                    <div className="text-sm font-semibold text-ink">
+                      💶 {salary}/m
+                    </div>
 
-                  {perks.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {perks.slice(0, 3).map((p) => (
-                        <span
-                          key={p}
-                          className="text-[11px] px-2 py-0.5 bg-cream rounded text-stone-700"
-                        >
-                          {p}
-                        </span>
-                      ))}
-                      {perks.length > 3 && (
-                        <span className="text-[11px] px-2 py-0.5 text-stone-500">
-                          +{perks.length - 3}
+                    {/* Sollicitatie counter */}
+                    <div className="flex gap-1.5 text-[10px]">
+                      <span className="bg-cream px-1.5 py-0.5 rounded">
+                        {totalApps} {totalApps === 1 ? "sollicitatie" : "sollicitaties"}
+                      </span>
+                      {pendingApps > 0 && (
+                        <span className="bg-lime/20 text-lime-dark px-1.5 py-0.5 rounded font-semibold">
+                          {pendingApps} pending
                         </span>
                       )}
                     </div>
-                  )}
 
-                  {/* Werkgever-specifieke info: sollicitatie counts + fee */}
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-cream rounded p-2">
-                      <div className="eyebrow text-[10px]">Sollicitaties</div>
-                      <div className="font-semibold text-ink mt-0.5">
-                        {totalApps}{" "}
-                        {pendingApps > 0 && (
-                          <span className="text-lime-dark">
-                            ({pendingApps} pending)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="bg-cream rounded p-2">
-                      <div className="eyebrow text-[10px]">Match fee</div>
-                      <div className="font-semibold text-ink mt-0.5">
-                        € {(v.match_fee_cents / 100).toFixed(0)}
-                      </div>
+                    <div className="mt-auto pt-2 border-t border-stone-100 flex justify-between items-center">
+                      <span className="font-mono text-[10px] text-stone-500">
+                        {daysAgo(v.created_at)}
+                      </span>
+                      <span className="bg-lime text-ink px-2 py-0.5 rounded text-[10px] font-bold group-hover:bg-lime-dark transition-colors">
+                        Beheer →
+                      </span>
                     </div>
                   </div>
+                </Link>
+              );
+            })}
+          </div>
 
-                  {v.monthly_fee_cents != null && (
-                    <div className="text-[11px] text-stone-500 font-mono">
-                      Maandelijkse fee: € {(v.monthly_fee_cents / 100).toFixed(0)}
-                    </div>
-                  )}
-
-                  <div className="mt-auto pt-3 border-t border-stone-100 flex justify-between items-center">
-                    <span className="font-mono text-[11px] text-stone-500">
-                      {daysAgo(v.created_at)}
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
+              <div className="text-xs font-mono text-stone-500">
+                Pagina {page} van {totalPages} · {count ?? 0} vacatures
+              </div>
+              <div className="flex items-center gap-1">
+                <PageLink href={buildPageUrl(page - 1)} disabled={page <= 1}>
+                  ← Vorige
+                </PageLink>
+                {generatePageNumbers(page, totalPages).map((p, i) =>
+                  typeof p === "number" ? (
+                    <PageLink
+                      key={i}
+                      href={buildPageUrl(p)}
+                      active={p === page}
+                    >
+                      {p}
+                    </PageLink>
+                  ) : (
+                    <span key={i} className="px-2 text-stone-400 text-sm">
+                      …
                     </span>
-                    <span className="bg-lime text-ink px-3 py-1 rounded-md text-xs font-bold group-hover:bg-lime-dark transition-colors">
-                      Beheer →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                  )
+                )}
+                <PageLink
+                  href={buildPageUrl(page + 1)}
+                  disabled={page >= totalPages}
+                >
+                  Volgende →
+                </PageLink>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+function generatePageNumbers(
+  current: number,
+  total: number
+): (number | "...")[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const result: (number | "...")[] = [1];
+  if (current > 3) result.push("...");
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
+    result.push(p);
+  }
+  if (current < total - 2) result.push("...");
+  result.push(total);
+  return result;
+}
+
+function PageLink({
+  href,
+  children,
+  disabled = false,
+  active = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+  active?: boolean;
+}) {
+  if (disabled) {
+    return (
+      <span className="px-2.5 py-1 rounded-md text-xs font-medium text-stone-300 cursor-not-allowed">
+        {children}
+      </span>
+    );
+  }
+  return (
+    <Link
+      href={href}
+      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors min-w-[32px] text-center ${
+        active
+          ? "bg-ink text-paper"
+          : "bg-paper border border-stone-200 hover:border-ink"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -283,7 +351,7 @@ function StatusPill({ status }: { status: string }) {
   };
   return (
     <span
-      className={`font-mono text-[9px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded whitespace-nowrap ${
+      className={`font-mono text-[9px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 rounded whitespace-nowrap ${
         styles[status] ?? "bg-stone-100 text-stone-700"
       }`}
     >

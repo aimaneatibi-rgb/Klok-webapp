@@ -7,6 +7,7 @@ import {
   Briefcase,
   Users,
   Receipt,
+  CreditCard,
   Settings,
   FileSignature,
   LogOut,
@@ -68,6 +69,17 @@ export default async function DashboardLayout({
           </NavLink>
           <NavLink href="/dashboard/pool" icon={<Users size={16} />}>
             Mijn pool
+          </NavLink>
+
+          <div className="eyebrow px-3 mb-2 mt-6">Financieel</div>
+          <NavLink href="/dashboard/facturen" icon={<Receipt size={16} />}>
+            Facturen
+          </NavLink>
+          <NavLink
+            href="/dashboard/betaalmethodes"
+            icon={<CreditCard size={16} />}
+          >
+            Betaalmethodes
           </NavLink>
 
           <div className="eyebrow px-3 mb-2 mt-6">Bedrijf</div>
