@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { checkEmployeeProfile } from "@/lib/profile-completeness";
 import Link from "next/link";
 
 export default async function WerknemerDashboardPage() {
@@ -7,7 +8,6 @@ export default async function WerknemerDashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Check if profile is "complete" — employee row exists with key fields filled
   const { data: profile } = await supabase
     .from("users")
     .select("first_name, last_name, phone")
@@ -20,12 +20,16 @@ export default async function WerknemerDashboardPage() {
     .eq("user_id", user!.id)
     .single();
 
-  const profileComplete =
-    profile?.first_name &&
-    profile?.phone &&
-    employee?.date_of_birth &&
-    employee?.sectors &&
-    employee.sectors.length > 0;
+  const profileCheck = checkEmployeeProfile({
+    user: profile,
+    employee: employee
+      ? {
+          date_of_birth: employee.date_of_birth,
+          sectors: (employee.sectors as string[] | null) ?? null,
+        }
+      : null,
+  });
+  const profileComplete = profileCheck.complete;
 
   // Earnings & rating data
   const startOfMonth = new Date(

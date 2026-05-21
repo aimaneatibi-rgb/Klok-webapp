@@ -24,6 +24,18 @@ export default async function NewShiftPage() {
     redirect("/dashboard/overeenkomst");
   }
 
+  // Vereis primaire contactpersoon — anders kunnen we niet factureren of opvolgen
+  const { data: primaryContact } = await supabase
+    .from("employer_contacts")
+    .select("id")
+    .eq("employer_id", employer.id)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  if (!primaryContact) {
+    redirect("/dashboard/instellingen?reden=contact");
+  }
+
   // Lookup actieve payroll partij voor deze sector
   const { data: payrollProvider } = await supabase
     .from("sector_payroll_providers")

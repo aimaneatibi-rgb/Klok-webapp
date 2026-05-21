@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { SECTOR_LABELS } from "@/lib/sectors";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CrmPanel from "@/components/admin/crm-panel";
+import type { FunnelStage } from "@/components/admin/crm-stage-form";
 
 export default async function AdminMedewerkerDetailPage({
   params,
@@ -99,6 +101,18 @@ export default async function AdminMedewerkerDetailPage({
           👁 Bekijk hun dashboard
         </Link>
       </div>
+
+      <CrmPanel
+        targetType="employee"
+        targetId={employee.id}
+        initialStage={(employee.funnel_stage ?? "onboarding") as FunnelStage}
+        initialNextAction={employee.next_action ?? null}
+        initialNextActionDueAt={employee.next_action_due_at ?? null}
+        source={employee.source ?? null}
+        utmSource={employee.utm_source ?? null}
+        utmMedium={employee.utm_medium ?? null}
+        utmCampaign={employee.utm_campaign ?? null}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
         <InfoCard label="Persoonsgegevens">

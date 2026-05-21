@@ -20,10 +20,25 @@ function SignupInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get("ref") ?? "";
+  const prospectId = searchParams.get("prospect") ?? "";
+  const utmSource = searchParams.get("utm_source") ?? "";
+  const utmMedium = searchParams.get("utm_medium") ?? "";
+  const utmCampaign = searchParams.get("utm_campaign") ?? "";
+  const presetEmail = searchParams.get("email") ?? "";
+
+  // Bepaal de "bron" — referral wint van prospect-invite wint van utm wint van direct
+  const source: string | null = referralCode
+    ? `referral:${referralCode}`
+    : prospectId
+      ? "prospect_invite"
+      : utmSource
+        ? `utm:${utmSource}`
+        : null;
+
   const [userType, setUserType] = useState<UserType>("employer");
 
   // Shared
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(presetEmail);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -34,6 +49,8 @@ function SignupInner() {
   const [companyName, setCompanyName] = useState("");
   const [kvkNumber, setKvkNumber] = useState("");
   const [sector, setSector] = useState("horeca");
+  const [contactName, setContactName] = useState("");
+  const [contactRole, setContactRole] = useState("");
 
   // Werknemer
   const [firstName, setFirstName] = useState("");
@@ -80,34 +97,106 @@ function SignupInner() {
       return;
     }
 
+    // Attributie-velden — gebruikt voor zowel werkgever als werknemer
+    const attribution = {
+      source,
+      utm_source: utmSource || null,
+      utm_medium: utmMedium || null,
+      utm_campaign: utmCampaign || null,
+    };
+
     // Stap 2: profielrecord aanmaken + phone op users updaten
     if (userType === "employer") {
-      const { error: empError } = await supabase.from("employers").insert({
-        user_id: authData.user.id,
-        company_name: companyName,
-        kvk_number: kvkNumber,
-        sector: sector as SectorValue,
-      });
+      const { data: newEmployer, error: empError } = await supabase
+        .from("employers")
+        .insert({
+          user_id: authData.user.id,
+          company_name: companyName,
+          kvk_number: kvkNumber,
+          sector: sector as SectorValue,
+          ...attribution,
+        })
+        .select("id")
+        .single();
 
-      if (empError) {
+      if (empError || !newEmployer) {
         setError(
-          `Account aangemaakt maar bedrijfsdata mislukt: ${empError.message}`
+          `Account aangemaakt maar bedrijfsdata mislukt: ${empError?.message ?? "onbekende fout"}`
         );
         setLoading(false);
         return;
       }
+
+      // Primaire contactpersoon vastleggen — zo hebben we altijd opvolg-gegevens
+      // ook als de werkgever later afhaakt voordat-ie zijn eerste shift plaatst.
+      const { error: contactError } = await supabase
+        .from("employer_contacts")
+        .insert({
+          employer_id: newEmployer.id,
+          name: contactName,
+          role: contactRole || null,
+          email,
+          phone,
+          is_primary: true,
+        });
+
+      if (contactError) {
+        // Account + employer bestaan al, dus enkel waarschuwen — gebruiker kan
+        // later contact toevoegen via instellingen, en de gate vangt het op.
+        console.warn("employer_contacts insert mislukt:", contactError.message);
+      }
+
+      // Prospect-invite afhandelen: markeer als converted
+      if (prospectId) {
+        await supabase
+          .from("crm_prospects")
+          .update({
+            status: "converted",
+            converted_employer_id: newEmployer.id,
+            converted_at: new Date().toISOString(),
+          })
+          .eq("id", prospectId);
+
+        await supabase.from("crm_activities").insert({
+          target_type: "prospect",
+          target_id: prospectId,
+          kind: "signup",
+          summary: `Prospect geconverteerd naar werkgever-account: ${companyName}`,
+        });
+      }
     } else {
       // werknemer: maak leeg employees record (profiel completion komt later)
-      const { error: empError } = await supabase
+      const { data: newEmployee, error: empError } = await supabase
         .from("employees")
-        .insert({ user_id: authData.user.id });
+        .insert({ user_id: authData.user.id, ...attribution })
+        .select("id")
+        .single();
 
-      if (empError) {
+      if (empError || !newEmployee) {
         setError(
-          `Account aangemaakt maar profiel mislukt: ${empError.message}`
+          `Account aangemaakt maar profiel mislukt: ${empError?.message ?? "onbekende fout"}`
         );
         setLoading(false);
         return;
+      }
+
+      // Prospect-invite afhandelen voor werknemer-conversie
+      if (prospectId) {
+        await supabase
+          .from("crm_prospects")
+          .update({
+            status: "converted",
+            converted_employee_id: newEmployee.id,
+            converted_at: new Date().toISOString(),
+          })
+          .eq("id", prospectId);
+
+        await supabase.from("crm_activities").insert({
+          target_type: "prospect",
+          target_id: prospectId,
+          kind: "signup",
+          summary: `Prospect geconverteerd naar werknemer-account: ${firstName} ${lastName}`,
+        });
       }
     }
 
@@ -131,6 +220,13 @@ function SignupInner() {
         <Link href="/" className="logo-mark mb-6 inline-flex">
           KLOK<span className="dot"></span>
         </Link>
+
+        {prospectId && (
+          <div className="bg-lime/20 border border-lime rounded-md px-3 py-2 mb-4 text-sm">
+            ✨ <strong>Je bent uitgenodigd door KLOK Works.</strong> Vul je
+            gegevens aan om te starten.
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-stone-200 rounded-md mb-6">
@@ -209,6 +305,28 @@ function SignupInner() {
                       </option>
                     ))}
                   </select>
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Contactpersoon">
+                  <input
+                    type="text"
+                    required
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    placeholder="Jan Janssen"
+                    className={inputClass}
+                  />
+                </Field>
+                <Field label="Functie">
+                  <input
+                    type="text"
+                    value={contactRole}
+                    onChange={(e) => setContactRole(e.target.value)}
+                    placeholder="bv. Eigenaar"
+                    className={inputClass}
+                  />
                 </Field>
               </div>
             </>

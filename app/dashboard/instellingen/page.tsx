@@ -1,10 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import CompanyForm from "./company-form";
 import AddressesForm from "./addresses-form";
 import ContactsSection from "./contacts-section";
 
-export default async function InstellingenPage() {
+export default async function InstellingenPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reden?: string }>;
+}) {
+  const { reden } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -44,6 +48,17 @@ export default async function InstellingenPage() {
           Beheer je bedrijfsgegevens, adressen en contactpersonen.
         </p>
       </div>
+
+      {reden === "contact" && (
+        <div className="bg-amber-100 border border-amber-300 rounded-lg p-4 mb-6">
+          <div className="text-sm text-amber-900">
+            <strong>📞 Eerst een contactpersoon instellen.</strong> Om shifts of
+            vacatures te plaatsen hebben we minimaal één primaire contactpersoon
+            nodig — voor facturen, opvolging en communicatie. Voeg hieronder je
+            primaire contact toe.
+          </div>
+        </div>
+      )}
 
       <div className="space-y-6">
         <CompanyForm

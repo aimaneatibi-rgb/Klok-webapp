@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SECTOR_LABELS } from "@/lib/sectors";
+import { checkEmployeeProfile } from "@/lib/profile-completeness";
 import Link from "next/link";
 import ReactButton from "./react-button";
 
@@ -9,7 +10,6 @@ export default async function ShiftsZoekenPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Profile completeness check
   const { data: userProfile } = await supabase
     .from("users")
     .select("first_name, phone")
@@ -18,25 +18,20 @@ export default async function ShiftsZoekenPage() {
 
   const { data: employee } = await supabase
     .from("employees")
-    .select("date_of_birth, sectors")
+    .select("id, date_of_birth, sectors")
     .eq("user_id", user!.id)
     .single();
 
-  const profileComplete =
-    userProfile?.first_name &&
-    userProfile?.phone &&
-    employee?.date_of_birth &&
-    employee?.sectors &&
-    (employee.sectors as string[]).length > 0;
-
-  // Existing responses from this employee — so we can mark "already responded"
-  const { data: employeeRow } = await supabase
-    .from("employees")
-    .select("id")
-    .eq("user_id", user!.id)
-    .single();
-
-  const employeeId = employeeRow?.id ?? null;
+  const profile = checkEmployeeProfile({
+    user: userProfile,
+    employee: employee
+      ? {
+          date_of_birth: employee.date_of_birth,
+          sectors: (employee.sectors as string[] | null) ?? null,
+        }
+      : null,
+  });
+  const employeeId = employee?.id ?? null;
 
   const { data: existingResponses } = employeeId
     ? await supabase
@@ -90,14 +85,15 @@ export default async function ShiftsZoekenPage() {
         </div>
       </div>
 
-      {!profileComplete && (
+      {!profile.complete && (
         <div className="bg-lime/20 border border-lime rounded-lg p-4 mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
             <div className="font-semibold text-ink">
               Je profiel is nog niet compleet.
             </div>
             <div className="text-sm text-stone-700">
-              Je kan rondkijken, maar om te reageren moet je profiel compleet zijn.
+              Je kan rondkijken, maar om te reageren moet je{" "}
+              {profile.missing.join(", ")} invullen.
             </div>
           </div>
           <Link
@@ -142,7 +138,7 @@ export default async function ShiftsZoekenPage() {
                 thumbnailUrl={media[0] ?? null}
                 companyName={employer?.company_name ?? "Onbekend bedrijf"}
                 sector={employer?.sector ?? null}
-                canReact={!!profileComplete && !!employeeId}
+                canReact={profile.complete && !!employeeId}
                 alreadyResponded={responded}
               />
             );

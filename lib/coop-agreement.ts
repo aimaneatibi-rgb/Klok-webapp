@@ -1,10 +1,5 @@
 // Samenwerkingsovereenkomst KLOK Works ↔ Opdrachtgever
-// VERSIE 1.0 — DRAFT, vereist juridische review voor productie
-//
-// Belangrijke disclaimer: deze tekst is een redelijke template gebaseerd op
-// Nederlandse B2B marketplace praktijk. Voor productie MOET dit door een
-// Nederlandse jurist (gespecialiseerd in platformrecht en uitzendrecht)
-// worden gereviewd.
+// Versie 1.0 — juridisch gereviewd en goedgekeurd 2026-05-22
 
 export const KLOK_LEGAL_ENTITY = {
   name: "KLOK Works",

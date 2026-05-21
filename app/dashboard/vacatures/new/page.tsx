@@ -24,6 +24,18 @@ export default async function NewVacancyPage() {
     redirect("/dashboard/overeenkomst");
   }
 
+  // Vereis primaire contactpersoon — anders kunnen we niet factureren of opvolgen
+  const { data: primaryContact } = await supabase
+    .from("employer_contacts")
+    .select("id")
+    .eq("employer_id", employer.id)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  if (!primaryContact) {
+    redirect("/dashboard/instellingen?reden=contact");
+  }
+
   // Actieve vacatures count voor staffel
   const { count: activeCount } = await supabase
     .from("vacancies")

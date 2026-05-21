@@ -70,18 +70,6 @@ export default async function OvereenkomstPage() {
         </div>
       </div>
 
-      {/* Juridische disclaimer */}
-      <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-4 text-sm">
-        <strong className="font-semibold text-amber-900">
-          ⚠️ Disclaimer template
-        </strong>
-        <p className="text-amber-900 mt-1">
-          Deze versie 1.0 is een redelijke startersovereenkomst. Voor productie
-          dien jij (KLOK Works) deze te laten reviewen door een Nederlandse
-          jurist gespecialiseerd in platformrecht en uitzendrecht (WAADI).
-        </p>
-      </div>
-
       {/* Contract body */}
       <div className="bg-paper border border-stone-200 rounded-lg overflow-hidden mb-6">
         <div className="bg-cream px-6 py-3 border-b border-stone-200">

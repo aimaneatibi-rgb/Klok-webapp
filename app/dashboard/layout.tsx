@@ -10,6 +10,7 @@ import {
   CreditCard,
   Settings,
   FileSignature,
+  LifeBuoy,
   LogOut,
 } from "lucide-react";
 
@@ -96,6 +97,11 @@ export default async function DashboardLayout({
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
               )}
             </span>
+          </NavLink>
+
+          <div className="eyebrow px-3 mb-2 mt-6">Ondersteuning</div>
+          <NavLink href="/help" icon={<LifeBuoy size={16} />}>
+            Hulp & support
           </NavLink>
         </nav>
 

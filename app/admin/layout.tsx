@@ -14,6 +14,7 @@ import {
   LifeBuoy,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 
 export default async function AdminLayout({
@@ -61,6 +62,9 @@ export default async function AdminLayout({
           </NavLink>
           <NavLink href="/admin/medewerkers" icon={<Users size={16} />}>
             Medewerkers
+          </NavLink>
+          <NavLink href="/admin/prospects" icon={<Sparkles size={16} />}>
+            Prospects
           </NavLink>
 
           <div className="eyebrow px-3 mb-2 mt-6">Aanbod</div>

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SECTOR_LABELS } from "@/lib/sectors";
+import { checkEmployeeProfile } from "@/lib/profile-completeness";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ApplyForm from "./apply-form";
@@ -15,11 +16,23 @@ export default async function VacancyDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Trek profiel-velden mee voor de hard-gate op "Solliciteer"
+  const { data: userProfile } = await supabase
+    .from("users")
+    .select("first_name, phone")
+    .eq("id", user!.id)
+    .single();
+
   const { data: employee } = await supabase
     .from("employees")
-    .select("id")
+    .select("id, date_of_birth, sectors")
     .eq("user_id", user!.id)
     .single();
+
+  const profile = checkEmployeeProfile({
+    user: userProfile,
+    employee,
+  });
 
   const { data: vacancy } = await supabase
     .from("vacancies")
@@ -218,6 +231,23 @@ export default async function VacancyDetailPage({
             </Link>
             .
           </p>
+        ) : !profile.complete ? (
+          <div className="bg-lime/20 border border-lime rounded-lg p-4 flex items-start justify-between gap-3 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <div className="font-semibold text-ink mb-1">
+                Vul eerst je profiel aan om te solliciteren.
+              </div>
+              <div className="text-sm text-stone-700">
+                Ontbreekt nog: {profile.missing.join(", ")}.
+              </div>
+            </div>
+            <Link
+              href="/werknemer/profiel"
+              className="bg-ink text-paper px-4 py-2 rounded-md text-sm font-semibold hover:bg-ink-soft transition-colors whitespace-nowrap"
+            >
+              Profiel completen →
+            </Link>
+          </div>
         ) : existingApp ? (
           <div>
             <div className="flex items-center gap-2 mb-3">

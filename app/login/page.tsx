@@ -18,18 +18,32 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: signInData, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError(error.message);
+    if (signInError || !signInData.user) {
+      setError(signInError?.message ?? "Inloggen mislukt.");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+      return;
     }
+
+    // Route naar het juiste dashboard op basis van rol — voorkomt de flits
+    // waarbij iedereen eerst op /dashboard landt en dan pas geredirect wordt.
+    const { data: profile } = await supabase
+      .from("users")
+      .select("user_type")
+      .eq("id", signInData.user.id)
+      .single();
+
+    const target =
+      profile?.user_type === "employee"
+        ? "/werknemer"
+        : profile?.user_type === "admin"
+          ? "/admin"
+          : "/dashboard";
+
+    router.push(target);
+    router.refresh();
   }
 
   return (
