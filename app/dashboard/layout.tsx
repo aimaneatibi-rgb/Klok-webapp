@@ -8,6 +8,7 @@ import {
   Users,
   Receipt,
   Settings,
+  FileSignature,
   LogOut,
 } from "lucide-react";
 
@@ -23,12 +24,25 @@ export default async function DashboardLayout({
 
   if (!user) redirect("/login");
 
+  // Role gate: /dashboard is exclusief voor werkgevers. Andere types worden doorgestuurd.
+  const { data: profile } = await supabase
+    .from("users")
+    .select("user_type")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) redirect("/login");
+  if (profile.user_type === "employee") redirect("/werknemer");
+  if (profile.user_type === "admin") redirect("/admin");
+
   // Fetch employer info for sidebar
   const { data: employer } = await supabase
     .from("employers")
-    .select("company_name")
+    .select("company_name, coop_agreement_signed_at")
     .eq("user_id", user.id)
     .single();
+
+  const agreementSigned = !!employer?.coop_agreement_signed_at;
 
   return (
     <div className="grid grid-cols-[240px_1fr] min-h-screen">
@@ -60,6 +74,17 @@ export default async function DashboardLayout({
           <NavLink href="/dashboard/instellingen" icon={<Settings size={16} />}>
             Instellingen
           </NavLink>
+          <NavLink
+            href="/dashboard/overeenkomst"
+            icon={<FileSignature size={16} />}
+          >
+            <span className="flex items-center gap-1.5">
+              Overeenkomst
+              {!agreementSigned && (
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
+              )}
+            </span>
+          </NavLink>
         </nav>
 
         {/* User profile */}
@@ -83,7 +108,23 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main */}
-      <main className="bg-cream overflow-x-hidden">{children}</main>
+      <main className="bg-cream overflow-x-hidden">
+        {!agreementSigned && (
+          <div className="bg-amber-100 border-b border-amber-300 px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-sm text-amber-900">
+              <strong>📝 Onderteken eerst de samenwerkingsovereenkomst.</strong>{" "}
+              Je kunt geen shifts of vacatures plaatsen tot dit gebeurd is.
+            </div>
+            <Link
+              href="/dashboard/overeenkomst"
+              className="bg-ink text-paper px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-ink-soft transition-colors whitespace-nowrap"
+            >
+              Bekijken & ondertekenen →
+            </Link>
+          </div>
+        )}
+        {children}
+      </main>
     </div>
   );
 }

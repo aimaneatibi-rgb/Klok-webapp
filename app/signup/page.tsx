@@ -1,30 +1,43 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { SECTORS, type SectorValue } from "@/lib/sectors";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
-const SECTORS = [
-  { value: "horeca", label: "Horeca" },
-  { value: "retail", label: "Retail" },
-  { value: "logistics", label: "Logistiek" },
-  { value: "construction", label: "Bouw" },
-  { value: "healthcare", label: "Zorg" },
-  { value: "delivery", label: "Bezorging" },
-];
+type UserType = "employer" | "employee";
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupInner />
+    </Suspense>
+  );
+}
+
+function SignupInner() {
   const router = useRouter();
-  const [companyName, setCompanyName] = useState("");
-  const [kvkNumber, setKvkNumber] = useState("");
-  const [sector, setSector] = useState("horeca");
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref") ?? "";
+  const [userType, setUserType] = useState<UserType>("employer");
+
+  // Shared
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Werkgever
+  const [companyName, setCompanyName] = useState("");
+  const [kvkNumber, setKvkNumber] = useState("");
+  const [sector, setSector] = useState("horeca");
+
+  // Werknemer
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,15 +52,20 @@ export default function SignupPage() {
 
     const supabase = createClient();
 
-    // Stap 1: maak auth user aan
+    // Stap 1: auth user aanmaken (handle_new_user trigger maakt users-row aan)
+    const metadata: Record<string, string> = { user_type: userType };
+    if (userType === "employee") {
+      metadata.first_name = firstName;
+      metadata.last_name = lastName;
+    }
+    if (referralCode) {
+      metadata.referral_code = referralCode;
+    }
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          user_type: "employer",
-        },
-      },
+      options: { data: metadata },
     });
 
     if (authError) {
@@ -56,35 +74,49 @@ export default function SignupPage() {
       return;
     }
 
-    // Stap 2: maak employer record aan (database trigger maakt al users record)
-    if (authData.user) {
+    if (!authData.user) {
+      setError("Account aanmaken mislukt — probeer opnieuw.");
+      setLoading(false);
+      return;
+    }
+
+    // Stap 2: profielrecord aanmaken + phone op users updaten
+    if (userType === "employer") {
       const { error: empError } = await supabase.from("employers").insert({
         user_id: authData.user.id,
         company_name: companyName,
         kvk_number: kvkNumber,
-        sector: sector as
-          | "horeca"
-          | "retail"
-          | "logistics"
-          | "construction"
-          | "healthcare"
-          | "delivery",
+        sector: sector as SectorValue,
       });
 
       if (empError) {
-        setError(`Account aangemaakt maar bedrijfsdata mislukt: ${empError.message}`);
+        setError(
+          `Account aangemaakt maar bedrijfsdata mislukt: ${empError.message}`
+        );
         setLoading(false);
         return;
       }
+    } else {
+      // werknemer: maak leeg employees record (profiel completion komt later)
+      const { error: empError } = await supabase
+        .from("employees")
+        .insert({ user_id: authData.user.id });
 
-      // Stap 3: update phone op users tabel
-      await supabase
-        .from("users")
-        .update({ phone })
-        .eq("id", authData.user.id);
+      if (empError) {
+        setError(
+          `Account aangemaakt maar profiel mislukt: ${empError.message}`
+        );
+        setLoading(false);
+        return;
+      }
     }
 
-    router.push("/dashboard");
+    await supabase
+      .from("users")
+      .update({ phone })
+      .eq("id", authData.user.id);
+
+    router.push(userType === "employer" ? "/dashboard" : "/werknemer");
     router.refresh();
   }
 
@@ -96,86 +128,142 @@ export default function SignupPage() {
       />
 
       <div className="bg-cream rounded-xl p-8 w-full max-w-md relative z-10 shadow-2xl">
-        <Link href="/" className="logo-mark mb-8 inline-flex">
+        <Link href="/" className="logo-mark mb-6 inline-flex">
           KLOK<span className="dot"></span>
         </Link>
 
-        <span className="eyebrow">— WERKGEVER ACCOUNT</span>
-        <h1 className="font-serif text-3xl font-medium tracking-tight my-3">
-          Begin gratis.
-        </h1>
-        <p className="text-stone-700 text-sm mb-6">
-          Plaats je eerste shift in 5 minuten. Geen creditcard nodig.
-        </p>
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 bg-stone-200 rounded-md mb-6">
+          <TabButton
+            active={userType === "employer"}
+            onClick={() => setUserType("employer")}
+          >
+            Werkgever
+          </TabButton>
+          <TabButton
+            active={userType === "employee"}
+            onClick={() => setUserType("employee")}
+          >
+            Werknemer
+          </TabButton>
+        </div>
+
+        {userType === "employer" ? (
+          <>
+            <span className="eyebrow">— WERKGEVER ACCOUNT</span>
+            <h1 className="font-serif text-3xl font-medium tracking-tight my-3">
+              Begin gratis.
+            </h1>
+            <p className="text-stone-700 text-sm mb-6">
+              Plaats je eerste shift in 5 minuten. Geen creditcard nodig.
+            </p>
+          </>
+        ) : (
+          <>
+            <span className="eyebrow">— WERKNEMER ACCOUNT</span>
+            <h1 className="font-serif text-3xl font-medium tracking-tight my-3">
+              Vind werk dat past.
+            </h1>
+            <p className="text-stone-700 text-sm mb-6">
+              Maak gratis een account aan. Je profiel completeer je later om op
+              shifts te reageren.
+            </p>
+          </>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="eyebrow block mb-1.5">Bedrijfsnaam</label>
-            <input
-              type="text"
-              required
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Restaurant Bocca"
-              className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
-            />
-          </div>
+          {userType === "employer" ? (
+            <>
+              <Field label="Bedrijfsnaam">
+                <input
+                  type="text"
+                  required
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="Restaurant Bocca"
+                  className={inputClass}
+                />
+              </Field>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="eyebrow block mb-1.5">KvK</label>
-              <input
-                type="text"
-                required
-                pattern="[0-9]{8}"
-                value={kvkNumber}
-                onChange={(e) => setKvkNumber(e.target.value)}
-                placeholder="12345678"
-                className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="KvK">
+                  <input
+                    type="text"
+                    required
+                    pattern="[0-9]{8}"
+                    value={kvkNumber}
+                    onChange={(e) => setKvkNumber(e.target.value)}
+                    placeholder="12345678"
+                    className={inputClass}
+                  />
+                </Field>
+                <Field label="Sector">
+                  <select
+                    value={sector}
+                    onChange={(e) => setSector(e.target.value)}
+                    className={inputClass}
+                  >
+                    {SECTORS.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Voornaam">
+                <input
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Voornaam"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Achternaam">
+                <input
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Achternaam"
+                  className={inputClass}
+                />
+              </Field>
             </div>
-            <div>
-              <label className="eyebrow block mb-1.5">Sector</label>
-              <select
-                value={sector}
-                onChange={(e) => setSector(e.target.value)}
-                className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
-              >
-                {SECTORS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          )}
 
-          <div>
-            <label className="eyebrow block mb-1.5">Email</label>
+          <Field label="Email">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="aimane@bedrijf.nl"
-              className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
+              placeholder={
+                userType === "employer"
+                  ? "info@bedrijf.nl"
+                  : "naam@email.nl"
+              }
+              className={inputClass}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="eyebrow block mb-1.5">Telefoon</label>
+          <Field label="Telefoon">
             <input
               type="tel"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+31 6 12345678"
-              className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
+              className={inputClass}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="eyebrow block mb-1.5">Wachtwoord</label>
+          <Field label="Wachtwoord">
             <input
               type="password"
               required
@@ -183,9 +271,9 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimaal 8 tekens"
-              className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
+              className={inputClass}
             />
-          </div>
+          </Field>
 
           <label className="flex gap-2 items-start text-sm text-stone-700">
             <input
@@ -230,5 +318,47 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+const inputClass =
+  "w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink";
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="eyebrow block mb-1.5">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+        active
+          ? "bg-paper text-ink shadow-sm"
+          : "text-stone-600 hover:text-ink"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

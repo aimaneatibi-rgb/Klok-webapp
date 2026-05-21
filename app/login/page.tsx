@@ -45,12 +45,12 @@ export default function LoginPage() {
           KLOK<span className="dot"></span>
         </Link>
 
-        <span className="eyebrow">— WERKGEVERS DASHBOARD</span>
+        <span className="eyebrow">— INLOGGEN</span>
         <h1 className="font-serif text-3xl font-medium tracking-tight my-3">
           Welkom terug.
         </h1>
         <p className="text-stone-700 text-sm mb-6">
-          Log in op je werkgeversaccount om shifts en vacatures te beheren.
+          Werkgever, werknemer of admin — log in met je email en wachtwoord.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -61,7 +61,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="aimane@bedrijf.nl"
+              placeholder="naam@email.nl"
               className="w-full px-3 py-2.5 border border-stone-200 rounded-md bg-paper focus:outline-none focus:border-ink"
             />
           </div>

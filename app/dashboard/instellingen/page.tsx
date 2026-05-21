@@ -1,4 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import CompanyForm from "./company-form";
+import AddressesForm from "./addresses-form";
+import ContactsSection from "./contacts-section";
 
 export default async function InstellingenPage() {
   const supabase = await createClient();
@@ -12,36 +16,75 @@ export default async function InstellingenPage() {
     .eq("user_id", user!.id)
     .single();
 
-  return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <span className="eyebrow">— BEDRIJFSPROFIEL</span>
-      <h1 className="font-serif text-4xl font-medium tracking-tight mt-2 mb-2">
-        Instellingen
-      </h1>
-      <p className="text-stone-500 text-sm mb-8">
-        Beheer je bedrijfsgegevens, notificaties en betalingen.
-      </p>
-
-      <div className="bg-paper border border-stone-200 rounded-lg p-6">
-        <h2 className="font-serif text-xl font-medium mb-4">Bedrijfsgegevens</h2>
-        <div className="space-y-3 text-sm">
-          <Row label="Bedrijfsnaam" value={employer?.company_name || "—"} />
-          <Row label="KvK-nummer" value={employer?.kvk_number || "—"} />
-          <Row label="Sector" value={employer?.sector || "—"} />
-          <Row label="Email" value={user?.email || "—"} />
+  if (!employer) {
+    return (
+      <div className="p-8 max-w-3xl mx-auto">
+        <div className="bg-paper border border-stone-200 rounded-lg p-12 text-center">
+          <p className="text-stone-700">Geen werkgever-profiel gevonden.</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Cursor: prompt 5.2 voor volledige instellingen met tabs */}
-    </div>
-  );
-}
+  const { data: contacts } = await supabase
+    .from("employer_contacts")
+    .select("*")
+    .eq("employer_id", employer.id)
+    .order("is_primary", { ascending: false })
+    .order("created_at", { ascending: true });
 
-function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-stone-100 pb-2">
-      <span className="text-stone-500">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div className="p-8 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <span className="eyebrow">— BEDRIJFSPROFIEL</span>
+        <h1 className="font-serif text-4xl font-medium tracking-tight mt-2">
+          Instellingen
+        </h1>
+        <p className="text-stone-500 text-sm mt-1">
+          Beheer je bedrijfsgegevens, adressen en contactpersonen.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <CompanyForm
+          employerId={employer.id}
+          initial={{
+            company_name: employer.company_name ?? "",
+            trade_name: employer.trade_name ?? "",
+            legal_name: employer.legal_name ?? "",
+            kvk_number: employer.kvk_number ?? "",
+            vat_number: employer.vat_number ?? "",
+            sector: employer.sector,
+            website: employer.website ?? "",
+            about: employer.about ?? "",
+            established_at: employer.established_at ?? "",
+            sbi_codes: (employer.sbi_codes as string[] | null) ?? [],
+          }}
+        />
+
+        <AddressesForm
+          employerId={employer.id}
+          initialAddress={(employer.address as Record<string, string> | null) ?? null}
+          initialBillingAddress={
+            (employer.billing_address as Record<string, string> | null) ?? null
+          }
+          initialBillingEmail={employer.billing_email ?? ""}
+        />
+
+        <ContactsSection
+          employerId={employer.id}
+          initialContacts={(contacts ?? []) as ContactRow[]}
+        />
+      </div>
     </div>
   );
 }
+
+export type ContactRow = {
+  id: string;
+  name: string;
+  role: string | null;
+  email: string;
+  phone: string | null;
+  is_primary: boolean;
+};
