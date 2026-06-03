@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ContactForm from "./contact-form";
+import MarketingNav from "@/components/marketing/nav";
+import MarketingFooter from "@/components/marketing/footer";
 
 export const metadata: Metadata = {
   title: "Hulp & support · KLOK Works",
@@ -99,14 +101,12 @@ export default async function HelpPage() {
   }
 
   return (
-    <main className="min-h-screen bg-cream text-ink">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <Link href="/" className="logo-mark mb-8 inline-flex">
-          KLOK<span className="dot"></span>
-        </Link>
-
-        <div className="mb-10">
-          <span className="eyebrow">— HULP & SUPPORT</span>
+    <>
+      <MarketingNav />
+      <main className="bg-cream text-ink">
+        <div className="max-w-4xl mx-auto px-6 py-16">
+          <div className="mb-10">
+            <span className="eyebrow">— HULP & SUPPORT</span>
           <h1 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mt-2">
             Hoe kunnen we je <em className="italic text-lime-dark">helpen?</em>
           </h1>
@@ -171,19 +171,10 @@ export default async function HelpPage() {
           )}
         </section>
 
-        <div className="mt-12 pt-8 border-t border-stone-200 text-sm text-stone-500 flex gap-4 flex-wrap">
-          <Link href="/" className="underline hover:text-ink">
-            ← Terug naar home
-          </Link>
-          <Link href="/voorwaarden" className="underline hover:text-ink">
-            Voorwaarden
-          </Link>
-          <Link href="/privacy" className="underline hover:text-ink">
-            Privacy
-          </Link>
         </div>
-      </div>
-    </main>
+      </main>
+      <MarketingFooter />
+    </>
   );
 }
 

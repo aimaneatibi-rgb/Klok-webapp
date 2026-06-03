@@ -23,7 +23,7 @@ export default function MarketingFooter() {
             <h5>Werknemer</h5>
             <Link href="/werknemers">Voor werknemers</Link>
             <Link href="/signup">Aanmelden</Link>
-            <Link href="/download">App downloaden</Link>
+            <Link href="/vacatures">Open vacatures</Link>
           </div>
           <div className="footer-col">
             <h5>Werkgever</h5>

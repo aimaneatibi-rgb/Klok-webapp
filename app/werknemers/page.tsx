@@ -334,14 +334,14 @@ export default function WerknemersPage() {
                 Aanmelden
               </Link>
               <Link
-                href="/download"
+                href="/vacatures"
                 className="btn btn-ghost btn-large"
                 style={{
                   color: "var(--paper)",
                   borderColor: "rgba(255,255,255,0.2)",
                 }}
               >
-                App downloaden
+                Bekijk vacatures
               </Link>
             </div>
           </div>

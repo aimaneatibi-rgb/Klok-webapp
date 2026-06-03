@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import MarketingNav from "@/components/marketing/nav";
+import MarketingFooter from "@/components/marketing/footer";
 
 export const metadata: Metadata = {
   title: "Privacy policy · KLOK Works",
@@ -9,13 +10,11 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-cream text-ink">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <Link href="/" className="logo-mark mb-8 inline-flex">
-          KLOK<span className="dot"></span>
-        </Link>
-
-        <div className="mb-8">
+    <>
+      <MarketingNav />
+      <main className="bg-cream text-ink">
+        <div className="max-w-3xl mx-auto px-6 py-16">
+          <div className="mb-8">
           <span className="eyebrow">— JURIDISCH</span>
           <h1 className="font-serif text-4xl font-medium tracking-tight mt-2">
             Privacy policy
@@ -220,13 +219,10 @@ export default function PrivacyPage() {
           </Section>
         </article>
 
-        <div className="mt-12 pt-8 border-t border-stone-200 text-sm text-stone-500">
-          <Link href="/" className="underline hover:text-ink">
-            ← Terug naar home
-          </Link>
         </div>
-      </div>
-    </main>
+      </main>
+      <MarketingFooter />
+    </>
   );
 }
 

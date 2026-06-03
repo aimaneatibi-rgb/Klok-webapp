@@ -19,7 +19,6 @@ export default function robots(): MetadataRoute.Robots {
           "/vacatures",
           "/aanbrengen",
           "/over-ons",
-          "/download",
         ],
         disallow: [
           "/dashboard",

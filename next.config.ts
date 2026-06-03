@@ -24,7 +24,8 @@ const nextConfig: NextConfig = {
       { source: "/over-ons.html", destination: "/over-ons", permanent: true },
       { source: "/faq.html", destination: "/help", permanent: true },
       { source: "/contact.html", destination: "/help", permanent: true },
-      { source: "/download.html", destination: "/download", permanent: true },
+      // /download.html: oude marketing-link, app niet meer beschikbaar — naar /
+      { source: "/download.html", destination: "/", permanent: true },
     ];
   },
 };
