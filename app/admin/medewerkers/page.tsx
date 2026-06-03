@@ -135,7 +135,7 @@ export default async function AdminMedewerkersPage() {
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
+function Th({ children }: { children?: React.ReactNode }) {
   return (
     <th className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-stone-600">
       {children}
