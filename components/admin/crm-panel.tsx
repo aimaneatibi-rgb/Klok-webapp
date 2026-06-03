@@ -5,12 +5,18 @@ import CrmActivityForm from "./crm-activity-form";
 
 type TargetType = "employer" | "employee" | "prospect";
 
+// Supabase returnt joined `users` als array of als object afhankelijk van de
+// relatie-cardinality. Beide accepteren — formatAuthor() pakt het eerste
+// element bij array.
+type AuthorUser = { first_name: string | null; last_name: string | null };
+type AuthorJoin = AuthorUser | AuthorUser[] | null;
+
 type NoteRow = {
   id: string;
   body: string;
   created_at: string;
   author_user_id: string | null;
-  users?: { first_name: string | null; last_name: string | null } | null;
+  users?: AuthorJoin;
 };
 
 type ActivityRow = {
@@ -20,7 +26,7 @@ type ActivityRow = {
   details: string | null;
   occurred_at: string;
   author_user_id: string | null;
-  users?: { first_name: string | null; last_name: string | null } | null;
+  users?: AuthorJoin;
 };
 
 const KIND_META: Record<
