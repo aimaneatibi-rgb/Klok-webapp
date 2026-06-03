@@ -7,7 +7,20 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/login", "/signup", "/voorwaarden", "/privacy", "/help"],
+        allow: [
+          "/",
+          "/login",
+          "/signup",
+          "/voorwaarden",
+          "/privacy",
+          "/help",
+          "/werknemers",
+          "/werkgevers",
+          "/vacatures",
+          "/aanbrengen",
+          "/over-ons",
+          "/download",
+        ],
         disallow: [
           "/dashboard",
           "/werknemer",
