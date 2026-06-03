@@ -167,15 +167,6 @@ export default function OverOnsPage() {
               >
                 2026
               </div>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "var(--stone-500)",
-                  marginTop: "8px",
-                }}
-              >
-                Recent gelanceerd in Utrecht
-              </p>
             </div>
             <div className="reveal reveal-delay-2">
               <span className="eyebrow">— Status</span>

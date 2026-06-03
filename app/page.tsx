@@ -651,41 +651,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section style={{ background: "var(--cream)" }} className="mkt-section">
-        <div className="mkt-container text-center">
-          <div
-            className="reveal"
-            style={{ maxWidth: "800px", margin: "0 auto" }}
-          >
-            <span className="eyebrow">— Recent gelanceerd</span>
-            <h2 className="section-title mt-2">
-              Wij zijn nieuw.
-              <br />
-              <em>Doe mee vanaf het begin.</em>
-            </h2>
-            <p
-              className="section-lead"
-              style={{ margin: "24px auto 40px" }}
-            >
-              Hoe eerder je instapt, hoe groter je voorsprong op het netwerk.
-              Eerste werknemers verdienen levenslang aan iedereen die zij
-              aanbrengen.
-            </p>
-            <div
-              className="flex gap-2 flex-wrap"
-              style={{ justifyContent: "center" }}
-            >
-              <Link href="/signup" className="btn btn-primary btn-large">
-                Aanmelden als werknemer
-              </Link>
-              <Link href="/werkgevers" className="btn btn-lime btn-large">
-                Plaats een vacature
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <MarketingFooter />
     </>
   );
