@@ -339,30 +339,6 @@ export default function WerkgeversPage() {
         </div>
       </section>
 
-      <section className="mkt-section" style={{ background: "var(--cream)" }}>
-        <div className="mkt-container">
-          <div className="section-header reveal">
-            <span className="eyebrow">— Integraties</span>
-            <h2 className="section-title">
-              Werkt met wat
-              <br />
-              <em>jullie al gebruiken.</em>
-            </h2>
-          </div>
-
-          <div className="grid-4 reveal">
-            <IntegrationCard name="Exact" sub="Online & Globe export" />
-            <IntegrationCard name="Twinfield" sub="Boeking-export" />
-            <IntegrationCard name="e-Boekhouden" sub="Direct factureren" />
-            <IntegrationCard name="Untill" sub="Voor horeca" />
-            <IntegrationCard name="Lightspeed" sub="POS koppeling" />
-            <IntegrationCard name="Eitje" sub="Roostersoftware" />
-            <IntegrationCard name="Nmbrs" sub="Loonadministratie" />
-            <IntegrationCard name="+ API" sub="Open REST API" />
-          </div>
-        </div>
-      </section>
-
       <section
         id="contact"
         className="mkt-section"
@@ -579,21 +555,6 @@ function FeatureCard({
       <span className="card-num">{num}</span>
       <h3 className="card-title">{title}</h3>
       <p className="card-text">{text}</p>
-    </div>
-  );
-}
-
-function IntegrationCard({ name, sub }: { name: string; sub: string }) {
-  return (
-    <div className="card text-center">
-      <div className="serif" style={{ fontSize: "28px", fontWeight: 500 }}>
-        {name}
-      </div>
-      <p
-        style={{ fontSize: "11px", color: "var(--stone-500)", marginTop: "4px" }}
-      >
-        {sub}
-      </p>
     </div>
   );
 }

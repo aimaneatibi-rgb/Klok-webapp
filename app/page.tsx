@@ -29,7 +29,6 @@ export default async function Home() {
 
       <header className="hero">
         <div className="mkt-container hero-content">
-          <span className="eyebrow paper">— Recent gelanceerd in Utrecht</span>
           <h1>
             De marktplaats
             <br />
@@ -73,10 +72,6 @@ export default async function Home() {
                 11,5<span style={{ fontSize: "0.6em" }}>%</span>
               </div>
               <div className="label">Platformfee shifts</div>
-            </div>
-            <div className="hero-stat">
-              <div className="num">€ 0</div>
-              <div className="label">Voor werknemers</div>
             </div>
           </div>
         </div>
