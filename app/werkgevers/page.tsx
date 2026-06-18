@@ -62,15 +62,17 @@ export default function WerkgeversPage() {
             className="section-lead mt-3"
             style={{ color: "var(--stone-300)", maxWidth: "640px" }}
           >
-            Plaats shifts en vacatures direct op KLOK. Bouw je eigen pool van
-            betrouwbare werknemers. Bespaar tot 49% vergeleken met traditionele
-            uitzendbureaus.
+            Account aanmaken, vacature plaatsen, reacties ontvangen — binnen een
+            paar minuten live. De <strong style={{ color: "var(--paper)" }}>
+            eerste 50 dagen plaats je gratis</strong>. Geen tussenpersoon, geen
+            gedoe.
           </p>
 
           <div className="flex gap-2 mt-4 flex-wrap">
             <Link
               href="/signup"
               className="btn btn-large"
+              data-magnetic
               style={{
                 background: "var(--lime)",
                 color: "var(--ink)",
@@ -79,7 +81,7 @@ export default function WerkgeversPage() {
                 fontWeight: 600,
               }}
             >
-              Begin gratis →
+              Plaats gratis je eerste vacature →
             </Link>
             <Link
               href="#prijzen"
@@ -96,6 +98,16 @@ export default function WerkgeversPage() {
               Bekijk prijzen
             </Link>
           </div>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "var(--stone-500)",
+              marginTop: "14px",
+            }}
+          >
+            Gratis account · geen creditcard nodig · binnen 50 dagen geen
+            incasso
+          </p>
 
           <div
             className="grid-4 mt-5"
@@ -108,11 +120,65 @@ export default function WerkgeversPage() {
           >
             <HeroStat num="11,5%" label="Platformfee · vs 30-40% UZB" />
             <HeroStat num="42 min" label="Tijd-tot-match · gemiddeld" />
-            <HeroStat num="€0" label="Eerste 30 dagen · gratis trial" />
+            <HeroStat num="€0" label="Eerste 50 dagen · gratis plaatsen" />
             <HeroStat num="100%" label="Transparant · geen kleine letters" />
           </div>
         </div>
       </header>
+
+      <section className="mkt-section" style={{ background: "var(--cream)" }}>
+        <div className="mkt-container">
+          <div className="section-header reveal">
+            <span className="eyebrow">— Plug &amp; play</span>
+            <h2 className="section-title">
+              In een paar minuten
+              <br />
+              <em>live.</em>
+            </h2>
+            <p className="section-lead">
+              Geen account-managers, geen lange onboarding. Je regelt het zelf —
+              en de eerste 50 dagen kost het niets.
+            </p>
+          </div>
+
+          <div className="grid-3 reveal">
+            <FeatureCard
+              num="01"
+              title="Maak een gratis account"
+              text="In 2 minuten geregeld, geen creditcard nodig. Vul je bedrijfsprofiel in zodat werknemers je herkennen."
+            />
+            <FeatureCard
+              num="02"
+              title="Plaats je vacature"
+              text="Titel, uren, salaris, contractvorm — klaar. De eerste 50 dagen gratis, daarna € 195/maand per vacature."
+            />
+            <FeatureCard
+              num="03"
+              title="Ontvang reacties"
+              text="Werknemers uit jouw regio reageren met een compleet CV. Jij kiest, wij regelen de match."
+            />
+          </div>
+
+          <div className="text-center" style={{ marginTop: "40px" }}>
+            <Link
+              href="/signup"
+              className="btn btn-primary btn-large"
+              data-magnetic
+            >
+              Maak gratis account →
+            </Link>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "var(--stone-500)",
+                marginTop: "12px",
+              }}
+            >
+              50 dagen gratis · daarna € 195/mnd ex btw · maandelijks opzegbaar
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section id="prijzen" className="mkt-section">
         <div className="mkt-container">
@@ -361,6 +427,49 @@ export default function WerkgeversPage() {
             </p>
           </div>
           <SavingsCalculator />
+        </div>
+      </section>
+
+      <section className="mkt-section" style={{ background: "var(--lime)" }}>
+        <div className="mkt-container text-center">
+          <div className="reveal" style={{ maxWidth: "720px", margin: "0 auto" }}>
+            <h2 className="section-title" style={{ color: "var(--ink)" }}>
+              Klaar om te starten?
+              <br />
+              <em>Zet vandaag je eerste vacature live.</em>
+            </h2>
+            <p
+              className="section-lead"
+              style={{ color: "var(--ink)", opacity: 0.8, margin: "20px auto 32px" }}
+            >
+              Gratis account, en de eerste 50 dagen plaats je kosteloos. Liever
+              eerst een rondleiding? Vraag hieronder een demo aan.
+            </p>
+            <div
+              className="flex gap-2 flex-wrap"
+              style={{ justifyContent: "center" }}
+            >
+              <Link
+                href="/signup"
+                className="btn btn-primary btn-large"
+                data-magnetic
+              >
+                Maak gratis account →
+              </Link>
+              <Link
+                href="#contact"
+                className="btn btn-large"
+                style={{
+                  background: "transparent",
+                  color: "var(--ink)",
+                  border: "2px solid var(--ink)",
+                  fontWeight: 600,
+                }}
+              >
+                Liever een demo
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
