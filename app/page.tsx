@@ -3,8 +3,20 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
+import {
+  daysUntilShiftsLive,
+  CLIENT_BILLING_STARTS_AT,
+  VACATURE_PRICE_EX_BTW,
+} from "@/lib/feature-flags";
+import type { ReactNode } from "react";
 
 export default async function Home() {
+  const daysToShifts = daysUntilShiftsLive();
+  const vacaturePrijs = VACATURE_PRICE_EX_BTW;
+  const incassoDatum = new Date(CLIENT_BILLING_STARTS_AT).toLocaleDateString(
+    "nl-NL",
+    { day: "numeric", month: "long" }
+  );
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,37 +41,70 @@ export default async function Home() {
 
       <header className="hero">
         <div className="mkt-container hero-content">
+          <span
+            className="eyebrow"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              color: "var(--paper)",
+              marginBottom: "20px",
+            }}
+          >
+            <span className="live-dot" /> De marktplaats opent — meld je nu aan
+          </span>
           <h1>
             De marktplaats
             <br />
-            voor flex-werk.
+            voor werk.
             <br />
             <em>Niets meer.</em>
           </h1>
           <p className="lead">
-            KLOK is geen uitzendbureau. Wij verbinden werknemers met werk en
-            werkgevers met talent. Twee soorten werk, één app, transparant.
+            Werk en talent vinden elkaar — direct, op één eerlijke marktplaats.
+            Plaats je vacature of zet jezelf met een compleet CV op de
+            wachtlijst en wees er als eerste bij.
           </p>
+          <div className="hero-usp">
+            <span className="usp-badge shimmer">€</span>
+            <span className="usp-text">
+              Help mee vacatures en shifts vullen, en verdien er{" "}
+              <strong>levenslang</strong> aan mee.
+            </span>
+          </div>
           <div className="hero-cta">
-            <Link href="/signup" className="btn btn-lime btn-large">
-              Aanmelden als werknemer →
+            <Link
+              href="/signup"
+              className="btn btn-lime btn-large"
+              data-magnetic
+            >
+              Zet me op de wachtlijst →
             </Link>
             <Link
               href="/werkgevers"
               className="btn btn-ghost btn-large"
+              data-magnetic
               style={{
                 color: "var(--paper)",
                 borderColor: "rgba(255,255,255,0.2)",
               }}
             >
-              Voor werkgevers
+              Plaats een vacature
             </Link>
           </div>
 
           <div className="hero-stats">
             <div className="hero-stat">
-              <div className="num">2</div>
-              <div className="label">Soorten werk</div>
+              <div className="num">
+                <span
+                  className="count-up"
+                  data-target="100"
+                  data-suffix="%"
+                >
+                  0%
+                </span>
+              </div>
+              <div className="label">Gratis voor werknemers</div>
             </div>
             <div className="hero-stat">
               <div className="num">
@@ -69,9 +114,16 @@ export default async function Home() {
             </div>
             <div className="hero-stat">
               <div className="num">
-                11,5<span style={{ fontSize: "0.6em" }}>%</span>
+                €&nbsp;
+                <span
+                  className="count-up"
+                  data-target={vacaturePrijs}
+                  data-prefix=""
+                >
+                  0
+                </span>
               </div>
-              <div className="label">Platformfee shifts</div>
+              <div className="label">Per vacature / mnd · ex. btw</div>
             </div>
           </div>
         </div>
@@ -79,18 +131,203 @@ export default async function Home() {
 
       <div className="marquee">
         <div className="marquee-track">
-          <span>Marktplaats voor flex-werk.</span>
+          <span>Marktplaats voor werk.</span>
           <span>€ 1 per uur referral.</span>
           <span>Twee soorten werk.</span>
           <span>Eerlijke prijzen.</span>
           <span>Levenslang passief inkomen.</span>
-          <span>Marktplaats voor flex-werk.</span>
+          <span>Marktplaats voor werk.</span>
           <span>€ 1 per uur referral.</span>
           <span>Twee soorten werk.</span>
           <span>Eerlijke prijzen.</span>
           <span>Levenslang passief inkomen.</span>
         </div>
       </div>
+
+      <section
+        id="marktplaats"
+        className="mkt-section"
+        style={{ background: "var(--cream)" }}
+      >
+        <div className="mkt-container">
+          <div className="section-header reveal">
+            <span
+              className="eyebrow"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <span className="live-dot" /> Live op de marktplaats
+            </span>
+            <h2 className="section-title">
+              Vraag en aanbod,
+              <br />
+              <em>realtime bij elkaar.</em>
+            </h2>
+            <p className="section-lead">
+              Net als op elke marktplaats draait het om volume. Werkgevers
+              plaatsen vacatures, werknemers melden zich aan met een compleet
+              profiel. Hoe voller de markt, hoe sneller de match.
+            </p>
+          </div>
+
+          <div
+            className="grid-2"
+            style={{ gap: "48px", alignItems: "start" }}
+          >
+            <div className="reveal reveal-scale" id="live-board-anchor">
+              <div className="live-board">
+                <div className="live-board-head">
+                  <span className="title">
+                    <span className="live-dot" /> Marktplaats-activiteit
+                  </span>
+                  <span className="ping">● LIVE</span>
+                </div>
+                <div className="live-feed" data-live-feed>
+                  <FeedItem
+                    kind="vac"
+                    initials="HB"
+                    avatar="lime"
+                    line={
+                      <>
+                        <strong>Brasserie Centro</strong> plaatste een vacature
+                      </>
+                    }
+                    meta="Amsterdam · Horeca · zojuist"
+                    tag="Vacature"
+                  />
+                  <FeedItem
+                    kind="werk"
+                    initials="SK"
+                    avatar="paper"
+                    line={
+                      <>
+                        <strong>Sanne K.</strong> zette zich op de wachtlijst
+                      </>
+                    }
+                    meta="Utrecht · CV compleet · 1 min"
+                    tag="Werknemer"
+                  />
+                  <FeedItem
+                    kind="vac"
+                    initials="ZV"
+                    avatar="lime"
+                    line={
+                      <>
+                        <strong>ZorgVitaal</strong> zoekt 3 verzorgenden
+                      </>
+                    }
+                    meta="Rotterdam · Zorg · 2 min"
+                    tag="Vacature"
+                  />
+                  <FeedItem
+                    kind="werk"
+                    initials="MD"
+                    avatar="paper"
+                    line={
+                      <>
+                        <strong>Mehmet D.</strong> rondde zijn profiel af
+                      </>
+                    }
+                    meta="Den Haag · CV compleet · 4 min"
+                    tag="Werknemer"
+                  />
+                  <FeedItem
+                    kind="vac"
+                    initials="FL"
+                    avatar="lime"
+                    line={
+                      <>
+                        <strong>FastLane Logistics</strong> plaatste 2 vacatures
+                      </>
+                    }
+                    meta="Eindhoven · Logistiek · 6 min"
+                    tag="Vacature"
+                  />
+                  <FeedItem
+                    kind="werk"
+                    initials="LV"
+                    avatar="paper"
+                    line={
+                      <>
+                        <strong>Lisa V.</strong> meldde zich aan
+                      </>
+                    }
+                    meta="Groningen · CV compleet · 8 min"
+                    tag="Werknemer"
+                  />
+                </div>
+              </div>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "var(--stone-500)",
+                  marginTop: "12px",
+                  textAlign: "center",
+                }}
+              >
+                Voorbeeld van de activiteit zodra de markt vult.
+              </p>
+            </div>
+
+            <div className="reveal reveal-delay-2">
+              <div className="market-stats">
+                <div className="market-stat">
+                  <div className="ms-num">
+                    <span
+                      className="count-up"
+                      data-target={vacaturePrijs}
+                      data-prefix="€ "
+                    >
+                      € 0
+                    </span>
+                  </div>
+                  <div className="ms-label">Per vacature / maand · ex. btw</div>
+                  <div className="ms-sub">Eerste 50 dagen gratis plaatsen</div>
+                </div>
+                <div className="market-stat">
+                  <div className="ms-num">
+                    <span className="count-up" data-target="4" data-suffix=" dagen">
+                      0
+                    </span>
+                  </div>
+                  <div className="ms-label">Tot loon na goedgekeurde uren</div>
+                  <div className="ms-sub">Via onze contract-partners</div>
+                </div>
+                <div className="market-stat">
+                  <div className="ms-num">
+                    <span className="count-up" data-target="6" data-suffix="+">
+                      0
+                    </span>
+                  </div>
+                  <div className="ms-label">Sectoren: horeca, zorg, retail…</div>
+                  <div className="ms-sub">Door heel Nederland</div>
+                </div>
+                <div className="market-stat">
+                  <div className="ms-num">
+                    € 0<span style={{ fontSize: "0.45em" }}> /werknemer</span>
+                  </div>
+                  <div className="ms-label">Aanmelden + wachtlijst</div>
+                  <div className="ms-sub">Voor altijd gratis</div>
+                </div>
+              </div>
+              <div
+                className="flex gap-2 flex-wrap"
+                style={{ marginTop: "20px" }}
+              >
+                <Link href="/signup" className="btn btn-primary" data-magnetic>
+                  Op de wachtlijst →
+                </Link>
+                <Link href="/werkgevers" className="btn btn-ghost" data-magnetic>
+                  Plaats een vacature
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="mkt-section">
         <div className="mkt-container">
@@ -110,41 +347,59 @@ export default async function Home() {
 
           <div className="grid-2">
             <div
-              className="card reveal reveal-delay-1"
+              className="card card-ink reveal reveal-delay-1"
               style={{ padding: "48px" }}
+              data-tilt="5"
             >
               <span className="card-num">01</span>
-              <h3 className="card-title">Shifts</h3>
-              <p className="card-text mb-3">
-                Losse diensten bij werkgevers in de horeca, retail, logistiek,
-                bouw, zorg of bezorging. Werkgever kiest zelf de
-                contract-partner voor het arbeidscontract.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="badge dark">11,5% platformfee</span>
-                <span className="badge outline">+ €1/u referral</span>
+              <div className="flex gap-2 flex-wrap" style={{ marginBottom: "16px" }}>
+                <span className="badge live">
+                  <span
+                    className="live-dot"
+                    style={{ width: "6px", height: "6px" }}
+                  />{" "}
+                  Nu live
+                </span>
               </div>
-            </div>
-
-            <div
-              className="card card-ink reveal reveal-delay-2"
-              style={{ padding: "48px" }}
-            >
-              <span className="card-num">02</span>
               <h3 className="card-title">Vacatures</h3>
               <p className="card-text mb-3">
-                Langdurige posities bij werkgevers. Werkgever kiest zelf
-                contract-vorm via onze contract-partners — uitzendbureau,
-                payroll-bedrijf of direct dienstverband.
+                Vaste en langdurige posities bij werkgevers. Dit is waar we nú
+                op draaien — werkgevers plaatsen, werknemers reageren met een
+                compleet CV. De eerste 50 dagen plaats je volledig gratis.
               </p>
               <div className="flex gap-2 flex-wrap">
-                <span className="badge">€ 350 / 4 weken</span>
+                <span className="badge live">Nu 50 dagen gratis</span>
+                <span className="badge dark">€ 195 p/m · ex. btw</span>
                 <span
                   className="badge"
                   style={{ background: "var(--lime)", color: "var(--ink)" }}
                 >
                   + €100/mnd referral
                 </span>
+              </div>
+            </div>
+
+            <div
+              className="card reveal reveal-delay-2 soon-lock"
+              style={{ padding: "48px" }}
+              data-tilt="5"
+            >
+              <span className="card-num">02</span>
+              <div className="flex gap-2 flex-wrap" style={{ marginBottom: "16px" }}>
+                <span className="badge soon">Binnenkort</span>
+                <span className="countdown-pill">
+                  <span className="cd-num">{daysToShifts}</span> dagen
+                </span>
+              </div>
+              <h3 className="card-title">Shifts</h3>
+              <p className="card-text mb-3">
+                Losse diensten per dag in horeca, retail, logistiek, bouw, zorg
+                of bezorging. We zetten shifts pas live als de marktplaats vol
+                genoeg is — zo is er vanaf dag 1 echt werk én genoeg mensen.
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                <span className="badge outline">11,5% platformfee</span>
+                <span className="badge outline">+ €1/u referral</span>
               </div>
             </div>
           </div>
@@ -229,10 +484,16 @@ export default async function Home() {
 
           <div className="grid-3 reveal">
             <div
-              className="card"
+              className="card soon-lock"
               style={{ display: "flex", flexDirection: "column" }}
             >
-              <span className="eyebrow">— Shifts</span>
+              <div
+                className="flex"
+                style={{ justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span className="eyebrow">— Shifts</span>
+                <span className="badge soon">Binnenkort · {daysToShifts}d</span>
+              </div>
               <div
                 className="serif"
                 style={{
@@ -279,7 +540,13 @@ export default async function Home() {
               className="card card-ink"
               style={{ display: "flex", flexDirection: "column" }}
             >
-              <span className="eyebrow lime">— Vaste vacatures</span>
+              <div
+                className="flex"
+                style={{ justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span className="eyebrow lime">— Vaste vacatures</span>
+                <span className="badge live">50 dagen gratis</span>
+              </div>
               <div
                 className="serif"
                 style={{
@@ -291,7 +558,11 @@ export default async function Home() {
                   color: "var(--paper)",
                 }}
               >
-                € 350<span style={{ fontSize: "0.4em", opacity: 0.7 }}>/4w</span>
+                € {vacaturePrijs}
+                <span style={{ fontSize: "0.32em", opacity: 0.7 }}>
+                  {" "}
+                  /mnd · ex. btw
+                </span>
               </div>
               <p
                 style={{
@@ -300,8 +571,8 @@ export default async function Home() {
                   marginBottom: "24px",
                 }}
               >
-                Listing-fee per vacature. Plus minimaal €100/maand contract bij
-                succesvolle match — naar aanbrenger.
+                Per vacature, per maand — via automatische incasso. De eerste 50
+                dagen plaats je gratis; incasso start pas vanaf {incassoDatum}.
               </p>
               <ul
                 style={{
@@ -313,9 +584,9 @@ export default async function Home() {
                   flex: 1,
                 }}
               >
-                <li>✓ Toegang tot werknemer-pool</li>
-                <li>✓ Match-fee gaat naar aanbrenger</li>
-                <li>✓ Re-match gratis bij vertrek &lt; 30 dagen</li>
+                <li>✓ Eerste 50 dagen gratis plaatsen</li>
+                <li>✓ Daarna €{vacaturePrijs} p/m via automatische incasso</li>
+                <li>✓ + €100/maand naar aanbrenger bij match</li>
                 <li>✓ Geen succes-fee, geen recruitment-marges</li>
               </ul>
               <Link href="/werkgevers" className="btn btn-lime mt-3">
@@ -391,7 +662,7 @@ export default async function Home() {
             <Step
               num="01 / Aanmelden"
               title="Maak een account"
-              text="Werknemer of werkgever — aanmelden in een paar minuten. Werknemer-aanmelding is gratis. Werkgever betaalt alleen wanneer er gewerkt wordt of een vacature actief staat."
+              text="Werknemer of werkgever — aanmelden in een paar minuten. Werknemer-aanmelding is altijd gratis. Werkgevers plaatsen de eerste 50 dagen gratis; daarna €195 per vacature per maand (ex. btw) via automatische incasso."
             />
             <Step
               num="02 / Match"
@@ -653,6 +924,33 @@ export default async function Home() {
 
       <MarketingFooter />
     </>
+  );
+}
+
+function FeedItem({
+  kind,
+  initials,
+  avatar,
+  line,
+  meta,
+  tag,
+}: {
+  kind: "vac" | "werk";
+  initials: string;
+  avatar: "lime" | "paper";
+  line: ReactNode;
+  meta: string;
+  tag: string;
+}) {
+  return (
+    <div className="live-feed-item">
+      <div className={`lf-avatar ${avatar}`}>{initials}</div>
+      <div className="lf-body">
+        <div className="lf-line">{line}</div>
+        <div className="lf-meta">{meta}</div>
+      </div>
+      <span className={`lf-tag ${kind}`}>{tag}</span>
+    </div>
   );
 }
 

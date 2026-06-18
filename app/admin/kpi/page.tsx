@@ -409,7 +409,7 @@ export default async function KpiDashboardPage() {
   }
   for (const v of activeVacancies ?? []) {
     const e = employerStats.get(v.employer_id);
-    if (e) e.vacatureMrr += v.monthly_fee_cents ?? 23500;
+    if (e) e.vacatureMrr += v.monthly_fee_cents ?? 19500;
   }
   for (const s of shiftsRevenueRecent ?? []) {
     const e = employerStats.get(s.employer_id);
@@ -460,7 +460,7 @@ export default async function KpiDashboardPage() {
 
   // MRR vacatures (recurring monthly fees)
   const mrrVacatures = (activeVacancies ?? []).reduce(
-    (s, v) => s + (v.monthly_fee_cents ?? 23500),
+    (s, v) => s + (v.monthly_fee_cents ?? 19500),
     0
   );
 
@@ -590,7 +590,7 @@ export default async function KpiDashboardPage() {
   for (const v of activeVacancies ?? []) {
     const emp = Array.isArray(v.employers) ? v.employers[0] : v.employers;
     const sec = emp?.sector;
-    if (sec) sectorMrr[sec] = (sectorMrr[sec] ?? 0) + (v.monthly_fee_cents ?? 23500);
+    if (sec) sectorMrr[sec] = (sectorMrr[sec] ?? 0) + (v.monthly_fee_cents ?? 19500);
   }
 
   // Activation rates

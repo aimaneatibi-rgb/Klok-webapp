@@ -76,11 +76,12 @@ export default function VoorwaardenPage() {
 
           <Section heading="4. Tarieven en betaling">
             <p>
-              <strong>Werkgever:</strong> KLOK rekent een platformfee van 11,5%
-              over het bruto-uurloon per shift. Voor vacatures geldt een
-              staffeltarief tussen €150 en €235 per geplaatste vacature, plus
-              een maandelijkse abonnementsfee zolang de vacature open staat.
-              Actuele tarieven staan in het dashboard.
+              <strong>Werkgever:</strong> voor vacatures geldt een tarief van
+              € 195 per vacature per maand (exclusief btw), via automatische
+              incasso, zolang de vacature open staat. Tijdens de launchperiode
+              zijn de eerste 50 dagen kosteloos. Voor shifts rekent KLOK een
+              platformfee van 11,5% over het bruto-uurloon per shift. Actuele
+              tarieven staan in het dashboard.
             </p>
             <p>
               <strong>Werknemer:</strong> gebruik van het platform is gratis.

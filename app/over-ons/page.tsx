@@ -6,7 +6,7 @@ import MarketingFooter from "@/components/marketing/footer";
 export const metadata: Metadata = {
   title: "Over ons — KLOK Works",
   description:
-    "Waarom we KLOK Works bouwen — een eerlijk platform voor flex-werk zonder tussenpersonen.",
+    "Waarom we KLOK Works bouwen — een eerlijke marktplaats die werk en talent verbindt, met een referral-model voor legaal extra inkomen tegen schijnzelfstandigheid.",
 };
 
 export default function OverOnsPage() {
@@ -92,6 +92,73 @@ export default function OverOnsPage() {
         </div>
       </section>
 
+      <section
+        className="mkt-section"
+        style={{ background: "var(--ink)", color: "var(--paper)" }}
+      >
+        <div className="mkt-container">
+          <div className="grid-2" style={{ gap: "64px", alignItems: "start" }}>
+            <div className="reveal">
+              <span className="eyebrow lime">— Ons doel met referral</span>
+              <h2
+                className="section-title mt-2"
+                style={{ color: "var(--paper)" }}
+              >
+                Eerlijk extra inkomen,
+                <br />
+                <em style={{ color: "var(--lime)" }}>
+                  geen schijnconstructies.
+                </em>
+              </h2>
+            </div>
+            <div className="reveal reveal-delay-1">
+              <p
+                style={{
+                  fontSize: "17px",
+                  color: "var(--stone-300)",
+                  lineHeight: 1.7,
+                  marginBottom: "16px",
+                }}
+              >
+                Te veel mensen worden vandaag illegaal &lsquo;onderverhuurd&rsquo;
+                — doorgeleend zonder dat loon, belasting en premies kloppen. Dat
+                voedt schijnzelfstandigheid en uitbuiting.
+              </p>
+              <p
+                style={{
+                  fontSize: "17px",
+                  color: "var(--stone-300)",
+                  lineHeight: 1.7,
+                  marginBottom: "16px",
+                }}
+              >
+                Daarom geven we mensen een eerlijk, belastingtechnisch juist
+                extra inkomen voor het aanbrengen van werk. Niemand hoeft meer
+                het illegale circuit in: alles loopt legaal via onze
+                contract-partners, met correcte afdracht.
+              </p>
+              <p
+                style={{
+                  fontSize: "17px",
+                  color: "var(--paper)",
+                  lineHeight: 1.7,
+                }}
+              >
+                Breng je iemand aan voor een <strong>shift</strong>, dan verdien
+                je <strong style={{ color: "var(--lime)" }}>levenslang €1
+                per gewerkt uur</strong> — zolang die persoon jouw referral
+                gebruikt. Breng je iemand aan voor een{" "}
+                <strong>vacature</strong>, dan verdien je mee{" "}
+                <strong style={{ color: "var(--lime)" }}>
+                  zolang het contract loopt
+                </strong>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="mkt-section" style={{ background: "var(--cream)" }}>
         <div className="mkt-container">
           <div className="section-header reveal">
@@ -151,7 +218,7 @@ export default function OverOnsPage() {
                   marginTop: "8px",
                 }}
               >
-                Jaarsveld 6, 6715 GE Ede
+                Gelderland, Nederland
               </p>
             </div>
             <div className="reveal reveal-delay-1">

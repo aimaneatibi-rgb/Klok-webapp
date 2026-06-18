@@ -14,96 +14,72 @@ export default function ReferralCalculator() {
 
   return (
     <div className="calc-widget reveal">
-      <div className="calc-row">
-        <div>
-          <div className="calc-input-group">
-            <div className="calc-label">
-              <span>Aantal aangebrachte werknemers</span>
-              <span className="calc-display">{people}</span>
-            </div>
-            <input
-              type="range"
-              className="calc-slider"
-              min={1}
-              max={50}
-              value={people}
-              onChange={(e) => setPeople(parseInt(e.target.value, 10))}
-            />
+      <div className="calc-inputs">
+        <div className="calc-input-group">
+          <div className="calc-label">
+            <span>Aantal aangebrachte werknemers</span>
+            <span className="calc-display">{people}</span>
           </div>
-
-          <div className="calc-input-group">
-            <div className="calc-label">
-              <span>Gem. uren/week per persoon</span>
-              <span className="calc-display">{hours} uur</span>
-            </div>
-            <input
-              type="range"
-              className="calc-slider"
-              min={4}
-              max={40}
-              value={hours}
-              onChange={(e) => setHours(parseInt(e.target.value, 10))}
-            />
-          </div>
-
-          <p
-            style={{
-              fontSize: "13px",
-              color: "var(--stone-500)",
-              marginTop: "16px",
-            }}
-          >
-            Op basis van € 1 per gewerkt uur. Cijfers zijn maandelijks gemiddeld
-            over een jaar.
-          </p>
+          <input
+            type="range"
+            className="calc-slider"
+            min={1}
+            max={50}
+            value={people}
+            onChange={(e) => setPeople(parseInt(e.target.value, 10))}
+          />
         </div>
 
-        <div>
-          <div className="calc-result hero">
-            <div className="label">Per maand passief</div>
-            <div className="num">{fmt(monthly)}</div>
+        <div className="calc-input-group">
+          <div className="calc-label">
+            <span>Gem. uren/week per persoon</span>
+            <span className="calc-display">{hours} uur</span>
           </div>
-
-          <div className="grid-2 mt-2">
-            <div className="calc-result">
-              <div className="label">Per jaar</div>
-              <div className="num" style={{ fontSize: "36px" }}>
-                {fmt(yearly)}
-              </div>
-            </div>
-            <div className="calc-result">
-              <div className="label">Over 5 jaar</div>
-              <div className="num" style={{ fontSize: "36px" }}>
-                {fmt(fiveYear)}
-              </div>
-            </div>
-          </div>
+          <input
+            type="range"
+            className="calc-slider"
+            min={4}
+            max={40}
+            value={hours}
+            onChange={(e) => setHours(parseInt(e.target.value, 10))}
+          />
         </div>
       </div>
+
+      <div className="calc-hero">
+        <div className="label">Per maand passief</div>
+        <div className="num">{fmt(monthly)}</div>
+      </div>
+
+      <div className="calc-sub">
+        <div className="calc-sub-item">
+          <div className="label">Per jaar</div>
+          <div className="num">{fmt(yearly)}</div>
+        </div>
+        <div className="calc-sub-item">
+          <div className="label">Over 5 jaar</div>
+          <div className="num">{fmt(fiveYear)}</div>
+        </div>
+      </div>
+
+      <p className="calc-note">
+        Op basis van € 1 per gewerkt uur — maandgemiddelde.
+      </p>
 
       <style jsx>{`
         .calc-widget {
           background: var(--ink);
           color: var(--paper);
-          padding: 48px;
+          padding: 28px;
           border: 1px solid var(--stone-700);
+          max-width: 540px;
+          margin: 0 auto;
         }
-        .calc-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 48px;
-          align-items: start;
-        }
-        @media (max-width: 768px) {
-          .calc-row {
-            grid-template-columns: 1fr;
-          }
-        }
-        .calc-input-group {
-          margin-bottom: 32px;
-        }
-        .calc-input-group:last-child {
-          margin-bottom: 0;
+        .calc-inputs {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          margin-bottom: 24px;
         }
         .calc-label {
           font-family: "JetBrains Mono", monospace;
@@ -111,7 +87,7 @@ export default function ReferralCalculator() {
           text-transform: uppercase;
           letter-spacing: 0.15em;
           color: var(--stone-500);
-          margin-bottom: 8px;
+          margin-bottom: 10px;
           display: flex;
           justify-content: space-between;
         }
@@ -133,54 +109,81 @@ export default function ReferralCalculator() {
         .calc-slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 22px;
-          height: 22px;
+          width: 18px;
+          height: 18px;
           background: var(--lime);
           border-radius: 50%;
           cursor: pointer;
           border: 3px solid var(--ink);
         }
         .calc-slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
+          width: 18px;
+          height: 18px;
           background: var(--lime);
           border-radius: 50%;
           cursor: pointer;
           border: 3px solid var(--ink);
         }
-        :global(.calc-result) {
-          background: var(--ink-soft);
-          padding: 32px;
-          border: 1px solid var(--stone-700);
+        .calc-hero {
+          background: var(--lime);
+          color: var(--ink);
+          padding: 18px 24px;
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 16px;
         }
-        :global(.calc-result .label) {
+        .calc-hero .label {
           font-family: "JetBrains Mono", monospace;
           font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.15em;
-          color: var(--stone-500);
-          margin-bottom: 8px;
+          color: var(--ink);
+          opacity: 0.7;
         }
-        :global(.calc-result .num) {
+        .calc-hero .num {
           font-family: "Fraunces", serif;
-          font-size: 64px;
+          font-size: 44px;
+          font-weight: 500;
+          color: var(--ink);
+          letter-spacing: -0.03em;
+          line-height: 1;
+        }
+        .calc-sub {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-top: 8px;
+        }
+        .calc-sub-item {
+          background: var(--ink-soft);
+          border: 1px solid var(--stone-700);
+          padding: 14px 16px;
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 8px;
+        }
+        .calc-sub-item .label {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: var(--stone-500);
+        }
+        .calc-sub-item .num {
+          font-family: "Fraunces", serif;
+          font-size: 22px;
           font-weight: 500;
           color: var(--lime);
           letter-spacing: -0.03em;
           line-height: 1;
         }
-        :global(.calc-result.hero) {
-          background: var(--lime);
-          border-color: var(--lime);
+        .calc-note {
+          font-size: 12px;
+          color: var(--stone-500);
+          margin-top: 14px;
           text-align: center;
-          padding: 40px;
-        }
-        :global(.calc-result.hero .num) {
-          font-size: 80px;
-          color: var(--ink);
-        }
-        :global(.calc-result.hero .label) {
-          color: var(--stone-700);
         }
       `}</style>
     </div>

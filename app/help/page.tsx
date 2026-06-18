@@ -18,7 +18,7 @@ const FAQ_WERKGEVER = [
   },
   {
     q: "Wat zijn de kosten?",
-    a: "Voor shifts rekenen we 11,5% platformfee over het bruto-uurloon. Voor vacatures geldt een staffeltarief van €150–€235 per plaatsing, plus een maandelijkse fee zolang de vacature openstaat. Werknemers gebruiken het platform gratis.",
+    a: "Voor vacatures betaal je € 195 per vacature per maand (ex btw) via automatische incasso, zolang de vacature openstaat. Tijdens onze launch is dat de eerste 50 dagen gratis. Shifts gaan later live; daarvoor rekenen we 11,5% platformfee over het bruto-uurloon. Werknemers gebruiken het platform altijd gratis.",
   },
   {
     q: "Wat is een payroll-partij?",

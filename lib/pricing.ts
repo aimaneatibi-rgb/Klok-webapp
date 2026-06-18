@@ -1,5 +1,11 @@
-// Staffel pricing voor vacatures
-// Doel: €1M MRR via volume-discounts die lock-in effect creëren
+// Vacature-prijs: vlak tarief van €195 ex btw per vacature per maand,
+// via automatische incasso. De eerste 50 dagen na launch is plaatsen gratis
+// (zie CLIENT_BILLING_STARTS_AT in lib/feature-flags.ts).
+//
+// NB: de oude staffel (€235→€150 met volumekorting) is bewust vervangen door
+// één vlak tarief. Wil je weer volumekorting? Zet meerdere tiers terug.
+
+import { VACATURE_PRICE_EX_BTW } from "./feature-flags";
 
 export type PricingTier = {
   minCount: number;
@@ -8,15 +14,13 @@ export type PricingTier = {
   label: string;
 };
 
+/** Vlak tarief: elke vacature kost hetzelfde per maand. */
 export const VACANCY_PRICING_TIERS: PricingTier[] = [
-  { minCount: 1, maxCount: 1, monthlyCents: 23500, label: "Starter" },
-  { minCount: 2, maxCount: 4, monthlyCents: 20000, label: "Groei" },
-  { minCount: 5, maxCount: 9, monthlyCents: 17500, label: "Schaal" },
   {
-    minCount: 10,
+    minCount: 1,
     maxCount: null,
-    monthlyCents: 15000,
-    label: "Enterprise",
+    monthlyCents: VACATURE_PRICE_EX_BTW * 100,
+    label: "Vast tarief",
   },
 ];
 

@@ -64,8 +64,9 @@ export default function SignAgreementForm({
           <span>
             Ik heb de samenwerkingsovereenkomst volledig gelezen en ga akkoord
             met alle bepalingen, waaronder de platformfee van{" "}
-            <strong>11,5% op shifts</strong> en de maandelijkse fee per
-            vacature (vanaf <strong>€ 235 ex BTW</strong>, met staffel).
+            <strong>11,5% op shifts</strong> en de fee per vacature van{" "}
+            <strong>€ 195 per maand ex BTW</strong> via automatische incasso
+            (eerste 50 dagen gratis).
           </span>
         </label>
 

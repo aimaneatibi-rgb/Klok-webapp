@@ -130,65 +130,7 @@ export default function WerkgeversPage() {
             </p>
           </div>
 
-          <div
-            className="reveal"
-            style={{
-              background: "var(--paper)",
-              padding: "48px",
-              border: "1px solid var(--stone-200)",
-            }}
-          >
-            <div className="grid-2" style={{ gap: "48px", alignItems: "start" }}>
-              <div>
-                <span className="eyebrow">— Shifts (flex-werk)</span>
-                <div
-                  className="serif mt-2"
-                  style={{
-                    fontSize: "88px",
-                    fontWeight: 500,
-                    letterSpacing: "-0.04em",
-                    lineHeight: 0.95,
-                    color: "var(--ink)",
-                  }}
-                >
-                  € 19,72
-                  <span style={{ fontSize: "0.3em", color: "var(--stone-500)" }}>
-                    {" "}/uur
-                  </span>
-                </div>
-                <p
-                  style={{
-                    fontSize: "14px",
-                    color: "var(--stone-500)",
-                    marginTop: "8px",
-                  }}
-                >
-                  All-in tarief bij zelf-aanmelding. Mét aanbrenger: €
-                  20,72/uur (€1 referral-bonus).
-                </p>
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    fontSize: "14px",
-                    lineHeight: 2,
-                    color: "var(--stone-700)",
-                    marginTop: "24px",
-                  }}
-                >
-                  <li>✓ Bruto loon werknemer (cao-conform)</li>
-                  <li>✓ Werkgeverslasten (cao, pensioen, vakantiegeld)</li>
-                  <li>✓ KLOK platformfee (11,5%)</li>
-                  <li>✓ + €1/uur referral als werknemer aanbrenger heeft</li>
-                </ul>
-              </div>
-              <div>
-                <PriceBreakdown />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid-2 mt-4" style={{ gap: "16px" }}>
+          <div className="grid-2" style={{ gap: "16px" }}>
             <div
               className="reveal"
               style={{
@@ -199,7 +141,13 @@ export default function WerkgeversPage() {
                 border: "1px solid var(--ink)",
               }}
             >
-              <span className="eyebrow lime">— Vacatures · Listing</span>
+              <div
+                className="flex"
+                style={{ justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span className="eyebrow lime">— Vacatures · Listing</span>
+                <span className="badge live">50 dagen gratis</span>
+              </div>
               <div
                 className="serif mt-2"
                 style={{
@@ -210,9 +158,18 @@ export default function WerkgeversPage() {
                   color: "var(--paper)",
                 }}
               >
-                € 350
-                <span style={{ fontSize: "0.3em", color: "var(--stone-300)" }}>
-                  {" "}/4w
+                € 195
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "15px",
+                    fontWeight: 400,
+                    letterSpacing: "0",
+                    color: "var(--stone-300)",
+                    marginTop: "8px",
+                  }}
+                >
+                  per maand · ex. btw
                 </span>
               </div>
               <p
@@ -222,8 +179,8 @@ export default function WerkgeversPage() {
                   marginTop: "8px",
                 }}
               >
-                Per vacature die je online plaatst, zolang die actief staat. Ex
-                BTW.
+                Per vacature, per maand — via automatische incasso. De eerste 50
+                dagen plaats je volledig gratis.
               </p>
               <ul
                 style={{
@@ -235,11 +192,11 @@ export default function WerkgeversPage() {
                   marginTop: "24px",
                 }}
               >
-                <li>✓ Toegang tot werknemer-pool</li>
-                <li>✓ Match-suggesties uit pool</li>
+                <li>✓ Eerste 50 dagen gratis plaatsen</li>
+                <li>✓ Daarna € 195 p/m via automatische incasso</li>
+                <li>✓ Toegang tot werknemer-pool + match-suggesties</li>
                 <li>✓ Onbeperkt sollicitanten ontvangen</li>
-                <li>✓ Per 4 weken via incasso, opzegbaar</li>
-                <li>✓ 30 dagen re-match garantie</li>
+                <li>✓ Opzegbaar — verwijder simpelweg de vacature</li>
               </ul>
             </div>
 
@@ -294,6 +251,74 @@ export default function WerkgeversPage() {
                 <li>✓ Vrij te verhogen als bonus</li>
                 <li>✓ Gratis re-match &lt; 30 dagen</li>
               </ul>
+            </div>
+          </div>
+
+          <div
+            className="reveal mt-4"
+            style={{
+              background: "var(--paper)",
+              padding: "48px",
+              border: "1px solid var(--stone-200)",
+            }}
+          >
+            <div className="grid-2" style={{ gap: "48px", alignItems: "start" }}>
+              <div>
+                <div
+                  className="flex"
+                  style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span className="eyebrow">— Shifts (flex-werk)</span>
+                  <span className="badge soon">Binnenkort</span>
+                </div>
+                <div
+                  className="serif mt-2"
+                  style={{
+                    fontSize: "88px",
+                    fontWeight: 500,
+                    letterSpacing: "-0.04em",
+                    lineHeight: 0.95,
+                    color: "var(--ink)",
+                  }}
+                >
+                  € 19,72
+                  <span style={{ fontSize: "0.3em", color: "var(--stone-500)" }}>
+                    {" "}/uur
+                  </span>
+                </div>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "var(--stone-500)",
+                    marginTop: "8px",
+                  }}
+                >
+                  All-in tarief bij zelf-aanmelding. Mét aanbrenger: €
+                  20,72/uur (€1 referral-bonus). Shifts gaan later live; we
+                  starten met vacatures.
+                </p>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    fontSize: "14px",
+                    lineHeight: 2,
+                    color: "var(--stone-700)",
+                    marginTop: "24px",
+                  }}
+                >
+                  <li>✓ Bruto loon werknemer (cao-conform)</li>
+                  <li>✓ Werkgeverslasten (cao, pensioen, vakantiegeld)</li>
+                  <li>✓ KLOK platformfee (11,5%)</li>
+                  <li>✓ + €1/uur referral als werknemer aanbrenger heeft</li>
+                </ul>
+              </div>
+              <div>
+                <PriceBreakdown />
+              </div>
             </div>
           </div>
         </div>
@@ -468,7 +493,7 @@ function PriceBreakdown() {
           background: "var(--ink)",
           color: "var(--paper)",
           padding: "12px 24px",
-          margin: "4px -24px -24px",
+          margin: "4px -24px 0",
           display: "flex",
           justifyContent: "space-between",
           fontSize: "14px",
@@ -491,7 +516,7 @@ function PriceBreakdown() {
         style={{
           fontSize: "12px",
           color: "var(--stone-500)",
-          marginTop: "12px",
+          marginTop: "16px",
           lineHeight: 1.5,
         }}
       >

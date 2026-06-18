@@ -253,9 +253,16 @@ export default function AanbrengenPage() {
         </div>
       </section>
 
-      <section id="calculator" className="mkt-section">
+      <section
+        id="calculator"
+        className="mkt-section"
+        style={{ paddingTop: "56px", paddingBottom: "56px" }}
+      >
         <div className="mkt-container">
-          <div className="section-header reveal">
+          <div
+            className="section-header reveal"
+            style={{ marginBottom: "32px" }}
+          >
             <span className="eyebrow">— Reken zelf na</span>
             <h2 className="section-title">
               Wat verdien

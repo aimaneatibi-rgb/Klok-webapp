@@ -17,6 +17,9 @@ import { useEffect } from "react";
 export default function MarketingScripts() {
   useEffect(() => {
     const cleanups: Array<() => void> = [];
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     // Mobile menu
     const menuToggle = document.querySelector<HTMLButtonElement>(
@@ -171,6 +174,98 @@ export default function MarketingScripts() {
       );
       counters.forEach((el) => counterObs.observe(el));
       cleanups.push(() => counterObs.disconnect());
+    }
+
+    // 3D tilt op kaarten met [data-tilt]
+    if (!reduceMotion) {
+      const tiltEls = document.querySelectorAll<HTMLElement>("[data-tilt]");
+      tiltEls.forEach((el) => {
+        const max = parseFloat(el.dataset.tilt || "6");
+        const onMove = (e: MouseEvent) => {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          el.style.transform = `perspective(900px) rotateX(${(-py * max).toFixed(
+            2
+          )}deg) rotateY(${(px * max).toFixed(2)}deg) translateY(-4px)`;
+        };
+        const onLeave = () => {
+          el.style.transform = "";
+        };
+        el.addEventListener("mousemove", onMove);
+        el.addEventListener("mouseleave", onLeave);
+        cleanups.push(() => {
+          el.removeEventListener("mousemove", onMove);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      });
+    }
+
+    // Magnetische knoppen met [data-magnetic]
+    if (!reduceMotion) {
+      const magnets = document.querySelectorAll<HTMLElement>("[data-magnetic]");
+      magnets.forEach((el) => {
+        const onMove = (e: MouseEvent) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left - r.width / 2) * 0.25;
+          const y = (e.clientY - r.top - r.height / 2) * 0.35;
+          el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+        };
+        const onLeave = () => {
+          el.style.transform = "";
+        };
+        el.addEventListener("mousemove", onMove);
+        el.addEventListener("mouseleave", onLeave);
+        cleanups.push(() => {
+          el.removeEventListener("mousemove", onMove);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      });
+    }
+
+    // Parallax op [data-parallax] (snelheid via data-parallax="0.2")
+    if (!reduceMotion) {
+      const parEls = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-parallax]")
+      );
+      if (parEls.length) {
+        let ticking = false;
+        const apply = () => {
+          const vh = window.innerHeight;
+          parEls.forEach((el) => {
+            const speed = parseFloat(el.dataset.parallax || "0.15");
+            const r = el.getBoundingClientRect();
+            const offset = r.top + r.height / 2 - vh / 2;
+            el.style.transform = `translateY(${(-offset * speed).toFixed(1)}px)`;
+          });
+          ticking = false;
+        };
+        const onScroll = () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(apply);
+          }
+        };
+        apply();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        cleanups.push(() => window.removeEventListener("scroll", onScroll));
+      }
+    }
+
+    // Live-feed rotator: marktplaats-activiteit die "binnenstroomt"
+    const feed = document.querySelector<HTMLElement>("[data-live-feed]");
+    if (feed && !reduceMotion) {
+      const rotate = () => {
+        const last = feed.lastElementChild as HTMLElement | null;
+        if (!last) return;
+        feed.prepend(last);
+        last.classList.remove("feed-in");
+        // force reflow zodat de animatie opnieuw triggert
+        void last.offsetWidth;
+        last.classList.add("feed-in");
+      };
+      const id = window.setInterval(rotate, 2600);
+      cleanups.push(() => window.clearInterval(id));
     }
 
     // Nav scroll shadow
