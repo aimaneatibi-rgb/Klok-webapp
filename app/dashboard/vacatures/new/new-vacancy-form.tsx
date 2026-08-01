@@ -2,7 +2,7 @@
 
 import PhotoUploader from "@/components/photo-uploader";
 import { createClient } from "@/lib/supabase/client";
-import { getVacancyMonthlyFee } from "@/lib/pricing";
+import { feePerVacancyCents, trialEndsAt } from "@/lib/pricing";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,10 +14,12 @@ export default function NewVacancyForm({
   employerId,
   initialAbout,
   currentActiveCount,
+  billingMethod,
 }: {
   employerId: string;
   initialAbout: string;
   currentActiveCount: number;
+  billingMethod: "incasso" | "factuur" | null;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -90,10 +92,10 @@ export default function NewVacancyForm({
       }
     }
 
-    // Bereken lock-in monthly fee
-    const { cents: monthlyCents } = getVacancyMonthlyFee(
-      currentActiveCount + 1
-    );
+    // Staffeltarief (snapshot) + proefperiode: 14 dagen gratis, daarna
+    // maandcyclus vanaf einde proefperiode (billing-engine pakt 'm op).
+    const monthlyCents = feePerVacancyCents(currentActiveCount + 1);
+    const trialEnd = trialEndsAt();
 
     const { data, error: insertError } = await supabase
       .from("vacancies")
@@ -114,6 +116,9 @@ export default function NewVacancyForm({
         billing_confirmed_at: new Date().toISOString(),
         contract_partner: contractType,
         listing_started_at: new Date().toISOString(),
+        trial_ends_at: trialEnd.toISOString(),
+        next_charge_at: trialEnd.toISOString(),
+        billing_status: "trial",
         status: "open",
       })
       .select("id")
@@ -345,6 +350,7 @@ export default function NewVacancyForm({
       <BillingConfirmModal
         open={showBilling}
         currentActiveCount={currentActiveCount}
+        billingMethod={billingMethod}
         loading={loading}
         onClose={() => setShowBilling(false)}
         onConfirm={() => handleActualSubmit()}

@@ -63,9 +63,9 @@ export default function WerkgeversPage() {
             style={{ color: "var(--stone-300)", maxWidth: "640px" }}
           >
             Account aanmaken, vacature plaatsen, reacties ontvangen — binnen een
-            paar minuten live. De <strong style={{ color: "var(--paper)" }}>
-            eerste 50 dagen plaats je gratis</strong>. Geen tussenpersoon, geen
-            gedoe.
+            paar minuten live. <strong style={{ color: "var(--paper)" }}>
+            Elke vacature start met 14 dagen gratis</strong>. Geen
+            tussenpersoon, geen gedoe.
           </p>
 
           <div className="flex gap-2 mt-4 flex-wrap">
@@ -105,8 +105,8 @@ export default function WerkgeversPage() {
               marginTop: "14px",
             }}
           >
-            Gratis account · geen creditcard nodig · binnen 50 dagen geen
-            incasso
+            Gratis account · geen creditcard nodig · eerste 14 dagen geen
+            incasso · stopt automatisch bij offline halen
           </p>
 
           <div
@@ -120,7 +120,7 @@ export default function WerkgeversPage() {
           >
             <HeroStat num="11,5%" label="Platformfee · vs 30-40% UZB" />
             <HeroStat num="42 min" label="Tijd-tot-match · gemiddeld" />
-            <HeroStat num="€0" label="Eerste 50 dagen · gratis plaatsen" />
+            <HeroStat num="€0" label="Eerste 14 dagen · per vacature" />
             <HeroStat num="100%" label="Transparant · geen kleine letters" />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function WerkgeversPage() {
             </h2>
             <p className="section-lead">
               Geen account-managers, geen lange onboarding. Je regelt het zelf —
-              en de eerste 50 dagen kost het niets.
+              en elke vacature start met 14 dagen gratis.
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export default function WerkgeversPage() {
             <FeatureCard
               num="02"
               title="Plaats je vacature"
-              text="Titel, uren, salaris, contractvorm — klaar. De eerste 50 dagen gratis, daarna € 195/maand per vacature."
+              text="Titel, uren, salaris, contractvorm — klaar. De eerste 14 dagen gratis, daarna € 195/maand — of minder met staffelkorting."
             />
             <FeatureCard
               num="03"
@@ -174,7 +174,8 @@ export default function WerkgeversPage() {
                 marginTop: "12px",
               }}
             >
-              50 dagen gratis · daarna € 195/mnd ex btw · maandelijks opzegbaar
+              14 dagen gratis · daarna v.a. € 149/mnd ex btw · stopt bij
+              offline halen
             </p>
           </div>
         </div>
@@ -212,7 +213,7 @@ export default function WerkgeversPage() {
                 style={{ justifyContent: "space-between", alignItems: "center" }}
               >
                 <span className="eyebrow lime">— Vacatures · Listing</span>
-                <span className="badge live">50 dagen gratis</span>
+                <span className="badge live">14 dagen gratis</span>
               </div>
               <div
                 className="serif mt-2"
@@ -245,9 +246,23 @@ export default function WerkgeversPage() {
                   marginTop: "8px",
                 }}
               >
-                Per vacature, per maand — via automatische incasso. De eerste 50
-                dagen plaats je volledig gratis.
+                Per vacature, per maand. Elke vacature start met 14 dagen
+                gratis; daarna betaal je automatisch via incasso of op factuur
+                (14 dagen termijn). Meer vacatures = lager tarief.
               </p>
+              <div
+                style={{
+                  marginTop: "20px",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  fontSize: "13px",
+                }}
+              >
+                <StaffelRow label="1 vacature" price="€ 195 /mnd" />
+                <StaffelRow label="2–3 vacatures" price="€ 175 /mnd p/st" />
+                <StaffelRow label="4+ vacatures" price="€ 149 /mnd p/st" last />
+              </div>
               <ul
                 style={{
                   listStyle: "none",
@@ -255,14 +270,14 @@ export default function WerkgeversPage() {
                   fontSize: "14px",
                   lineHeight: 2,
                   color: "var(--stone-300)",
-                  marginTop: "24px",
+                  marginTop: "20px",
                 }}
               >
-                <li>✓ Eerste 50 dagen gratis plaatsen</li>
-                <li>✓ Daarna € 195 p/m via automatische incasso</li>
-                <li>✓ Toegang tot werknemer-pool + match-suggesties</li>
+                <li>✓ Eerste 14 dagen gratis — per vacature</li>
+                <li>✓ Staffeltarief geldt voor ál je actieve vacatures</li>
+                <li>✓ Automatische incasso (Mollie) óf op factuur</li>
+                <li>✓ Offline halen = betalen stopt automatisch</li>
                 <li>✓ Onbeperkt sollicitanten ontvangen</li>
-                <li>✓ Opzegbaar — verwijder simpelweg de vacature</li>
               </ul>
             </div>
 
@@ -442,8 +457,8 @@ export default function WerkgeversPage() {
               className="section-lead"
               style={{ color: "var(--ink)", opacity: 0.8, margin: "20px auto 32px" }}
             >
-              Gratis account, en de eerste 50 dagen plaats je kosteloos. Liever
-              eerst een rondleiding? Vraag hieronder een demo aan.
+              Gratis account, en elke vacature start met 14 dagen gratis.
+              Liever eerst een rondleiding? Vraag hieronder een demo aan.
             </p>
             <div
               className="flex gap-2 flex-wrap"
@@ -514,6 +529,31 @@ export default function WerkgeversPage() {
 
       <MarketingFooter />
     </>
+  );
+}
+
+function StaffelRow({
+  label,
+  price,
+  last = false,
+}: {
+  label: string;
+  price: string;
+  last?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        padding: "10px 14px",
+        borderBottom: last ? "none" : "1px solid rgba(255,255,255,0.1)",
+        color: "var(--stone-300)",
+      }}
+    >
+      <span>{label}</span>
+      <span style={{ color: "var(--lime)", fontWeight: 600 }}>{price}</span>
+    </div>
   );
 }
 

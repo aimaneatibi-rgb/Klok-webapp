@@ -23,7 +23,8 @@ export default function MarketingFooter() {
             <h5>Werknemer</h5>
             <Link href="/werknemers">Voor werknemers</Link>
             <Link href="/signup">Aanmelden</Link>
-            <Link href="/vacatures">Open vacatures</Link>
+            <Link href="/vacatures">Vacatures zoeken</Link>
+            <Link href="/aanbrengen">Aanbrengen & verdienen</Link>
           </div>
           <div className="footer-col">
             <h5>Werkgever</h5>
@@ -34,8 +35,9 @@ export default function MarketingFooter() {
           <div className="footer-col">
             <h5>Bedrijf</h5>
             <Link href="/over-ons">Over ons</Link>
-            <Link href="/help">Hulp & contact</Link>
-            <Link href="/help">FAQ</Link>
+            <Link href="/blog">Blog</Link>
+            <Link href="/download">De KLOK-app</Link>
+            <Link href="/help">Hulp & FAQ</Link>
           </div>
         </div>
 

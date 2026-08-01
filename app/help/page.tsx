@@ -18,7 +18,7 @@ const FAQ_WERKGEVER = [
   },
   {
     q: "Wat zijn de kosten?",
-    a: "Voor vacatures betaal je € 195 per vacature per maand (ex btw) via automatische incasso, zolang de vacature openstaat. Tijdens onze launch is dat de eerste 50 dagen gratis. Shifts gaan later live; daarvoor rekenen we 11,5% platformfee over het bruto-uurloon. Werknemers gebruiken het platform altijd gratis.",
+    a: "Voor vacatures betaal je € 195 per vacature per maand (ex btw) — elke vacature start met 14 dagen gratis proefperiode. Plaats je meer vacatures, dan geldt staffelkorting: bij 2–3 vacatures € 175 en vanaf 4 vacatures € 149 per vacature per maand, voor ál je actieve vacatures. Betalen kan via automatische incasso (Mollie) of op factuur met 14 dagen betaaltermijn. Haal je een vacature offline, dan stopt de betaling automatisch. Shifts gaan later live; daarvoor rekenen we 11,5% platformfee over het bruto-uurloon. Werknemers gebruiken het platform altijd gratis.",
   },
   {
     q: "Wat is een payroll-partij?",

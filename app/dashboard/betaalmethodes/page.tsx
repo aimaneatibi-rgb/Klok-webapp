@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/payments";
 import { redirect } from "next/navigation";
+import BillingMethodSelector from "./billing-method-selector";
 import MethodsManager from "./methods-manager";
 
 export type PaymentMethodRow = {
@@ -26,7 +27,7 @@ export default async function BetaalmethodesPage() {
 
   const { data: employer } = await supabase
     .from("employers")
-    .select("id, company_name")
+    .select("id, company_name, billing_method, mollie_mandate_status")
     .eq("user_id", user!.id)
     .single();
 
@@ -49,10 +50,18 @@ export default async function BetaalmethodesPage() {
           Betaalmethodes
         </h1>
         <p className="text-stone-500 text-sm mt-1">
-          Beheer hoe KLOK factuurbedragen incasseert. SEPA Automatische Incasso
-          wordt aangeraden voor de maandelijkse vacature-fees.
+          Kies hoe je je maandelijkse vacature-fees betaalt: automatische
+          incasso via Mollie, of op factuur met 14 dagen betaaltermijn.
         </p>
       </div>
+
+      <BillingMethodSelector
+        current={
+          (employer.billing_method as "incasso" | "factuur" | null) ?? null
+        }
+        mandateStatus={employer.mollie_mandate_status ?? "none"}
+        demoMode={demo}
+      />
 
       {demo && (
         <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 text-sm">

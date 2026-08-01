@@ -1,22 +1,39 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
-import {
-  daysUntilShiftsLive,
-  CLIENT_BILLING_STARTS_AT,
-  VACATURE_PRICE_EX_BTW,
-} from "@/lib/feature-flags";
-import type { ReactNode } from "react";
+import JobSearchBar from "@/components/marketing/job-search-bar";
+import PhoneMockup from "@/components/marketing/phone-mockup";
+import { BLOG_POSTS, formatBlogDate } from "@/lib/blog";
+import { daysUntilShiftsLive } from "@/lib/feature-flags";
+import { TRIAL_DAYS, VACANCY_PRICING_TIERS } from "@/lib/pricing";
+
+const POPULAR_CHIPS = [
+  { label: "🍽️ Horeca", sector: "horeca" },
+  { label: "⚕️ Zorg", sector: "healthcare" },
+  { label: "🚚 Logistiek", sector: "logistics" },
+  { label: "🛍️ Retail", sector: "retail" },
+  { label: "🔨 Bouw", sector: "construction" },
+];
+
+const CATEGORIES = [
+  { emoji: "🍽️", tint: "tint-lime", name: "Horeca", sector: "horeca" },
+  { emoji: "⚕️", tint: "tint-sky", name: "Zorg & Welzijn", sector: "healthcare" },
+  { emoji: "🚚", tint: "tint-peach", name: "Logistiek", sector: "logistics" },
+  { emoji: "🛍️", tint: "tint-lilac", name: "Retail", sector: "retail" },
+  { emoji: "🔨", tint: "tint-mint", name: "Bouw", sector: "construction" },
+  { emoji: "🎉", tint: "tint-sand", name: "Evenementen", sector: "events" },
+  { emoji: "🛡️", tint: "tint-sky", name: "Beveiliging", sector: "security" },
+  { emoji: "🚲", tint: "tint-peach", name: "Bezorging", sector: "delivery" },
+];
 
 export default async function Home() {
   const daysToShifts = daysUntilShiftsLive();
-  const vacaturePrijs = VACATURE_PRICE_EX_BTW;
-  const incassoDatum = new Date(CLIENT_BILLING_STARTS_AT).toLocaleDateString(
-    "nl-NL",
-    { day: "numeric", month: "long" }
-  );
+  const vacaturePrijs = VACANCY_PRICING_TIERS[0].monthlyCents / 100;
+  const staffelLaagste =
+    VACANCY_PRICING_TIERS[VACANCY_PRICING_TIERS.length - 1].monthlyCents / 100;
   const supabase = await createClient();
   const {
     data: { user },
@@ -35,72 +52,107 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
+  const blogTeasers = BLOG_POSTS.slice(0, 3);
+
   return (
     <>
       <MarketingNav active="/" />
 
-      <header className="hero">
-        <div className="mkt-container hero-content">
-          <span
-            className="eyebrow"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              color: "var(--paper)",
-              marginBottom: "20px",
-            }}
-          >
-            <span className="live-dot" /> De marktplaats opent — meld je nu aan
-          </span>
-          <h1>
-            De marktplaats
-            <br />
-            voor werk.
-            <br />
-            <em>Niets meer.</em>
-          </h1>
-          <p className="lead">
-            Werk en talent vinden elkaar — direct, op één eerlijke marktplaats.
-            Plaats je vacature of zet jezelf met een compleet CV op de
-            wachtlijst en wees er als eerste bij.
-          </p>
-          <div className="hero-usp">
-            <span className="usp-badge shimmer">€</span>
-            <span className="usp-text">
-              Help mee vacatures en shifts vullen, en verdien er{" "}
-              <strong>levenslang</strong> aan mee.
-            </span>
-          </div>
-          <div className="hero-cta">
-            <Link
-              href="/signup"
-              className="btn btn-lime btn-large"
-              data-magnetic
-            >
-              Zet me op de wachtlijst →
-            </Link>
-            <Link
-              href="/werkgevers"
-              className="btn btn-ghost btn-large"
-              data-magnetic
-              style={{
-                color: "var(--paper)",
-                borderColor: "rgba(255,255,255,0.2)",
-              }}
-            >
-              Plaats een vacature
-            </Link>
+      {/* ============ HERO — zoeken staat centraal ============ */}
+      <header className="hero-v2">
+        <div className="mkt-container">
+          <div className="hero-grid">
+            <div>
+              <span
+                className="eyebrow pill on-dark"
+                style={{ marginBottom: "4px" }}
+              >
+                <span className="live-dot" /> De marktplaats is open
+              </span>
+              <h1>
+                De marktplaats
+                <br />
+                voor werk.
+                <br />
+                <em>Niets meer.</em>
+              </h1>
+              <p className="lead">
+                Vacatures en shifts, direct tussen werkgever en werknemer. Geen
+                uitzendmarges, geen tussenpersonen — en iedereen verdient mee
+                aan het netwerk.
+              </p>
+
+              <JobSearchBar />
+
+              <div className="search-chips">
+                <span className="chip-label">Populair</span>
+                {POPULAR_CHIPS.map((c) => (
+                  <Link
+                    key={c.sector}
+                    href={`/vacatures?sector=${c.sector}`}
+                    className="chip"
+                  >
+                    {c.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="hero-cards" aria-hidden>
+              <div className="float-card">
+                <div className="fc-top">
+                  <span className="fc-emoji tint-lime">🍽️</span>
+                  <span>
+                    <span className="fc-title">Zelfstandig werkend kok</span>
+                    <span className="fc-sub" style={{ display: "block" }}>
+                      Brasserie Centro · Amsterdam
+                    </span>
+                  </span>
+                </div>
+                <div className="fc-meta">
+                  <span className="hl">€ 2.900 – 3.400</span>
+                  <span>36u p/w</span>
+                  <span>Vast</span>
+                </div>
+              </div>
+              <div className="float-card">
+                <div className="fc-top">
+                  <span className="fc-emoji tint-sky">⚕️</span>
+                  <span>
+                    <span className="fc-title">Verzorgende IG (nacht)</span>
+                    <span className="fc-sub" style={{ display: "block" }}>
+                      ZorgVitaal · Rotterdam
+                    </span>
+                  </span>
+                </div>
+                <div className="fc-meta">
+                  <span className="hl">€ 2.750 – 3.250</span>
+                  <span>28u p/w</span>
+                </div>
+              </div>
+              <div className="float-card">
+                <div className="fc-top">
+                  <span className="fc-emoji tint-peach">🚚</span>
+                  <span>
+                    <span className="fc-title">Heftruckchauffeur</span>
+                    <span className="fc-sub" style={{ display: "block" }}>
+                      FastLane · Eindhoven
+                    </span>
+                  </span>
+                </div>
+                <div className="fc-meta">
+                  <span className="hl">€ 2.600 – 2.950</span>
+                  <span>40u p/w</span>
+                </div>
+              </div>
+              <span className="hero-badge-app">📱 App komt eraan</span>
+            </div>
           </div>
 
-          <div className="hero-stats">
+          <div className="hero-stats" style={{ marginTop: "56px" }}>
             <div className="hero-stat">
               <div className="num">
-                <span
-                  className="count-up"
-                  data-target="100"
-                  data-suffix="%"
-                >
+                <span className="count-up" data-target="100" data-suffix="%">
                   0%
                 </span>
               </div>
@@ -115,15 +167,19 @@ export default async function Home() {
             <div className="hero-stat">
               <div className="num">
                 €&nbsp;
-                <span
-                  className="count-up"
-                  data-target={vacaturePrijs}
-                  data-prefix=""
-                >
+                <span className="count-up" data-target={vacaturePrijs}>
                   0
                 </span>
               </div>
               <div className="label">Per vacature / mnd · ex. btw</div>
+            </div>
+            <div className="hero-stat">
+              <div className="num">
+                <span className="count-up" data-target="25" data-suffix="+">
+                  0
+                </span>
+              </div>
+              <div className="label">Sectoren door heel NL</div>
             </div>
           </div>
         </div>
@@ -133,17 +189,61 @@ export default async function Home() {
         <div className="marquee-track">
           <span>Marktplaats voor werk.</span>
           <span>€ 1 per uur referral.</span>
-          <span>Twee soorten werk.</span>
+          <span>Vacatures én shifts.</span>
+          <span>App komt eraan.</span>
           <span>Eerlijke prijzen.</span>
-          <span>Levenslang passief inkomen.</span>
           <span>Marktplaats voor werk.</span>
           <span>€ 1 per uur referral.</span>
-          <span>Twee soorten werk.</span>
+          <span>Vacatures én shifts.</span>
+          <span>App komt eraan.</span>
           <span>Eerlijke prijzen.</span>
-          <span>Levenslang passief inkomen.</span>
         </div>
       </div>
 
+      {/* ============ CATEGORIEËN ============ */}
+      <section className="mkt-section tight">
+        <div className="mkt-container">
+          <div
+            className="flex reveal"
+            style={{
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: "16px",
+              marginBottom: "32px",
+            }}
+          >
+            <div>
+              <span className="eyebrow">— Ontdek per sector</span>
+              <h2 className="section-title" style={{ fontSize: "clamp(32px, 4vw, 56px)" }}>
+                Waar wil jij <em>werken?</em>
+              </h2>
+            </div>
+            <Link href="/vacatures" className="btn btn-ghost">
+              Alle vacatures →
+            </Link>
+          </div>
+          <div className="cat-grid reveal">
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.sector}
+                href={`/vacatures?sector=${c.sector}`}
+                className="cat-tile"
+              >
+                <span className={`ct-emoji ${c.tint}`}>{c.emoji}</span>
+                <span>
+                  <span className="ct-name" style={{ display: "block" }}>
+                    {c.name}
+                  </span>
+                  <span className="ct-count">Vacatures & shifts</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ LIVE MARKTPLAATS ============ */}
       <section
         id="marktplaats"
         className="mkt-section"
@@ -152,12 +252,8 @@ export default async function Home() {
         <div className="mkt-container">
           <div className="section-header reveal">
             <span
-              className="eyebrow"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
+              className="eyebrow pill"
+              style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
             >
               <span className="live-dot" /> Live op de marktplaats
             </span>
@@ -173,11 +269,8 @@ export default async function Home() {
             </p>
           </div>
 
-          <div
-            className="grid-2"
-            style={{ gap: "48px", alignItems: "start" }}
-          >
-            <div className="reveal reveal-scale" id="live-board-anchor">
+          <div className="grid-2" style={{ gap: "48px", alignItems: "start" }}>
+            <div className="reveal reveal-scale">
               <div className="live-board">
                 <div className="live-board-head">
                   <span className="title">
@@ -188,7 +281,7 @@ export default async function Home() {
                 <div className="live-feed" data-live-feed>
                   <FeedItem
                     kind="vac"
-                    initials="HB"
+                    initials="BC"
                     avatar="lime"
                     line={
                       <>
@@ -204,7 +297,7 @@ export default async function Home() {
                     avatar="paper"
                     line={
                       <>
-                        <strong>Sanne K.</strong> zette zich op de wachtlijst
+                        <strong>Sanne K.</strong> maakte haar profiel compleet
                       </>
                     }
                     meta="Utrecht · CV compleet · 1 min"
@@ -228,7 +321,7 @@ export default async function Home() {
                     avatar="paper"
                     line={
                       <>
-                        <strong>Mehmet D.</strong> rondde zijn profiel af
+                        <strong>Mehmet D.</strong> bewaarde 3 vacatures
                       </>
                     }
                     meta="Den Haag · CV compleet · 4 min"
@@ -285,7 +378,10 @@ export default async function Home() {
                     </span>
                   </div>
                   <div className="ms-label">Per vacature / maand · ex. btw</div>
-                  <div className="ms-sub">Eerste 50 dagen gratis plaatsen</div>
+                  <div className="ms-sub">
+                    Eerste {TRIAL_DAYS} dagen gratis · staffel tot €{" "}
+                    {staffelLaagste}
+                  </div>
                 </div>
                 <div className="market-stat">
                   <div className="ms-num">
@@ -298,27 +394,24 @@ export default async function Home() {
                 </div>
                 <div className="market-stat">
                   <div className="ms-num">
-                    <span className="count-up" data-target="6" data-suffix="+">
+                    <span className="count-up" data-target="25" data-suffix="+">
                       0
                     </span>
                   </div>
-                  <div className="ms-label">Sectoren: horeca, zorg, retail…</div>
-                  <div className="ms-sub">Door heel Nederland</div>
+                  <div className="ms-label">Sectoren door heel NL</div>
+                  <div className="ms-sub">Van horeca tot zorg</div>
                 </div>
                 <div className="market-stat">
                   <div className="ms-num">
                     € 0<span style={{ fontSize: "0.45em" }}> /werknemer</span>
                   </div>
-                  <div className="ms-label">Aanmelden + wachtlijst</div>
+                  <div className="ms-label">Aanmelden + solliciteren</div>
                   <div className="ms-sub">Voor altijd gratis</div>
                 </div>
               </div>
-              <div
-                className="flex gap-2 flex-wrap"
-                style={{ marginTop: "20px" }}
-              >
+              <div className="flex gap-2 flex-wrap" style={{ marginTop: "20px" }}>
                 <Link href="/signup" className="btn btn-primary" data-magnetic>
-                  Op de wachtlijst →
+                  Maak gratis profiel →
                 </Link>
                 <Link href="/werkgevers" className="btn btn-ghost" data-magnetic>
                   Plaats een vacature
@@ -329,6 +422,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ TWEE WERK-TYPES ============ */}
       <section className="mkt-section">
         <div className="mkt-container">
           <div className="section-header reveal">
@@ -340,8 +434,8 @@ export default async function Home() {
             </h2>
             <p className="section-lead">
               Flex-werk wanneer het uitkomt, of een vast contract voor
-              stabiliteit. Beide via dezelfde KLOK-app, met eerlijke fees en
-              transparant verdienmodel.
+              stabiliteit. Beide via hetzelfde KLOK-profiel, met eerlijke fees
+              en een transparant verdienmodel.
             </p>
           </div>
 
@@ -365,16 +459,16 @@ export default async function Home() {
               <p className="card-text mb-3">
                 Vaste en langdurige posities bij werkgevers. Dit is waar we nú
                 op draaien — werkgevers plaatsen, werknemers reageren met een
-                compleet CV. De eerste 50 dagen plaats je volledig gratis.
+                compleet CV. Elke vacature start met {TRIAL_DAYS} dagen gratis.
               </p>
               <div className="flex gap-2 flex-wrap">
-                <span className="badge live">Nu 50 dagen gratis</span>
-                <span className="badge dark">€ 195 p/m · ex. btw</span>
+                <span className="badge live">{TRIAL_DAYS} dagen gratis</span>
+                <span className="badge dark">€ {vacaturePrijs} p/m · ex. btw</span>
                 <span
                   className="badge"
                   style={{ background: "var(--lime)", color: "var(--ink)" }}
                 >
-                  + €100/mnd referral
+                  Staffel tot € {staffelLaagste}
                 </span>
               </div>
             </div>
@@ -406,10 +500,72 @@ export default async function Home() {
         </div>
       </section>
 
-      <section
-        className="mkt-section"
-        style={{ background: "var(--cream)" }}
-      >
+      {/* ============ APP-SECTIE ============ */}
+      <section className="mkt-section" style={{ background: "var(--cream)" }}>
+        <div className="mkt-container">
+          <div className="app-section reveal">
+            <div className="app-grid">
+              <div>
+                <span className="eyebrow pill on-dark">
+                  📱 Binnenkort — de KLOK-app
+                </span>
+                <h2
+                  className="section-title mt-2"
+                  style={{ color: "var(--paper)", fontSize: "clamp(32px, 4.5vw, 60px)" }}
+                >
+                  De hele marktplaats.
+                  <br />
+                  <em style={{ color: "var(--lime)" }}>In je broekzak.</em>
+                </h2>
+                <p
+                  className="section-lead"
+                  style={{ color: "var(--stone-300)", fontSize: "17px" }}
+                >
+                  Push-notificaties bij nieuwe matches, solliciteren met één tik
+                  en je verdiensten live in beeld. De app komt naar iOS en
+                  Android — wie op de wachtlijst staat, krijgt als eerste
+                  toegang.
+                </p>
+                <div className="store-badges">
+                  <span className="store-badge">
+                    <span className="sb-icon"></span>
+                    <span>
+                      <span className="sb-pre">Binnenkort in de</span>
+                      <span className="sb-name">App Store</span>
+                    </span>
+                  </span>
+                  <span className="store-badge">
+                    <span className="sb-icon">▶</span>
+                    <span>
+                      <span className="sb-pre">Binnenkort op</span>
+                      <span className="sb-name">Google Play</span>
+                    </span>
+                  </span>
+                </div>
+                <div className="flex gap-2" style={{ marginTop: "28px", flexWrap: "wrap" }}>
+                  <Link href="/download" className="btn btn-lime" data-magnetic>
+                    Meer over de app →
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="btn btn-ghost"
+                    style={{
+                      color: "var(--paper)",
+                      borderColor: "rgba(255,255,255,0.25)",
+                    }}
+                  >
+                    Op de wachtlijst
+                  </Link>
+                </div>
+              </div>
+              <PhoneMockup />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ MARKTPLAATS VS UITZENDBUREAU ============ */}
+      <section className="mkt-section">
         <div className="mkt-container">
           <div className="section-header reveal">
             <span className="eyebrow">— Het verschil</span>
@@ -467,7 +623,12 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="prijzen" className="mkt-section">
+      {/* ============ PRIJZEN ============ */}
+      <section
+        id="prijzen"
+        className="mkt-section"
+        style={{ background: "var(--cream)" }}
+      >
         <div className="mkt-container">
           <div className="section-header reveal">
             <span className="eyebrow">— Transparante prijzen</span>
@@ -545,7 +706,7 @@ export default async function Home() {
                 style={{ justifyContent: "space-between", alignItems: "center" }}
               >
                 <span className="eyebrow lime">— Vaste vacatures</span>
-                <span className="badge live">50 dagen gratis</span>
+                <span className="badge live">{TRIAL_DAYS} dagen gratis</span>
               </div>
               <div
                 className="serif"
@@ -571,8 +732,9 @@ export default async function Home() {
                   marginBottom: "24px",
                 }}
               >
-                Per vacature, per maand — via automatische incasso. De eerste 50
-                dagen plaats je gratis; incasso start pas vanaf {incassoDatum}.
+                Per vacature, per maand. Elke vacature start met {TRIAL_DAYS}{" "}
+                dagen gratis; daarna betaal je via automatische incasso of op
+                factuur. Offline halen = betalen stopt.
               </p>
               <ul
                 style={{
@@ -584,10 +746,10 @@ export default async function Home() {
                   flex: 1,
                 }}
               >
-                <li>✓ Eerste 50 dagen gratis plaatsen</li>
-                <li>✓ Daarna €{vacaturePrijs} p/m via automatische incasso</li>
-                <li>✓ + €100/maand naar aanbrenger bij match</li>
-                <li>✓ Geen succes-fee, geen recruitment-marges</li>
+                <li>✓ Eerste {TRIAL_DAYS} dagen gratis per vacature</li>
+                <li>✓ Staffel: 2–3 vacatures € 175 · 4+ € {staffelLaagste} p/m</li>
+                <li>✓ Automatische incasso óf op factuur</li>
+                <li>✓ Stopt automatisch bij offline halen</li>
               </ul>
               <Link href="/werkgevers" className="btn btn-lime mt-3">
                 Plaats een vacature →
@@ -644,10 +806,8 @@ export default async function Home() {
         </div>
       </section>
 
-      <section
-        className="mkt-section"
-        style={{ background: "var(--cream)" }}
-      >
+      {/* ============ HOE HET WERKT ============ */}
+      <section className="mkt-section">
         <div className="mkt-container">
           <div className="section-header reveal">
             <span className="eyebrow">— In 4 stappen</span>
@@ -662,7 +822,7 @@ export default async function Home() {
             <Step
               num="01 / Aanmelden"
               title="Maak een account"
-              text="Werknemer of werkgever — aanmelden in een paar minuten. Werknemer-aanmelding is altijd gratis. Werkgevers plaatsen de eerste 50 dagen gratis; daarna €195 per vacature per maand (ex. btw) via automatische incasso."
+              text="Werknemer of werkgever — aanmelden in een paar minuten. Werknemer-aanmelding is altijd gratis. Werkgevers plaatsen elke vacature de eerste 14 dagen gratis; daarna €195 per vacature per maand (ex. btw) via automatische incasso of op factuur — met staffelkorting bij meerdere vacatures."
             />
             <Step
               num="02 / Match"
@@ -683,6 +843,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ REFERRAL ============ */}
       <section
         className="mkt-section"
         style={{ background: "var(--ink)", color: "var(--paper)" }}
@@ -699,18 +860,12 @@ export default async function Home() {
                 <br />
                 <em style={{ color: "var(--lime)" }}>op het netwerk.</em>
               </h2>
-              <p
-                className="section-lead"
-                style={{ color: "var(--stone-300)" }}
-              >
+              <p className="section-lead" style={{ color: "var(--stone-300)" }}>
                 Bij KLOK is iedereen mede-eigenaar van het netwerk. Breng iemand
                 aan, en zolang die werkt verdien jij € 1 per uur. Levenslang.
                 Geen MLM-onzin. Gewoon eerlijk delen.
               </p>
-              <Link
-                href="/aanbrengen"
-                className="btn btn-lime btn-large mt-4"
-              >
+              <Link href="/aanbrengen" className="btn btn-lime btn-large mt-4">
                 Bereken jouw passief inkomen →
               </Link>
             </div>
@@ -770,154 +925,81 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ BLOG-TEASER ============ */}
       <section className="mkt-section">
         <div className="mkt-container">
-          <div className="section-header reveal">
-            <span className="eyebrow">— Onze contract-partners</span>
-            <h2 className="section-title">
-              Wij regelen
-              <br />
-              de match.
-              <br />
-              <em>Onze partners regelen het contract.</em>
-            </h2>
-            <p className="section-lead">
-              KLOK is een marktplaats — geen uitzendbureau. Voor de juridische
-              kant (contract, loon, cao, pensioen) werken we samen met
-              betrouwbare contract-partners. Werkgever kiest zelf welke partij
-              past bij hun situatie.
-            </p>
-          </div>
-
-          <div className="grid-3 reveal">
-            <div className="card card-cream">
-              <span className="card-num">01</span>
-              <h3 className="card-title">Uitzend-partners</h3>
-              <p className="card-text">
-                Erkende uitzendbureaus die het arbeidscontract verzorgen voor
-                flex-werk. ABU-cao van toepassing.
-              </p>
-            </div>
-            <div className="card card-cream">
-              <span className="card-num">02</span>
-              <h3 className="card-title">Payroll-partners</h3>
-              <p className="card-text">
-                Specialistische payroll-bedrijven voor loonadministratie bij
-                vaste contracten.
-              </p>
-            </div>
-            <div className="card card-cream">
-              <span className="card-num">03</span>
-              <h3 className="card-title">Direct dienstverband</h3>
-              <p className="card-text">
-                Bij vacatures kan werkgever er ook voor kiezen om werknemer
-                rechtstreeks in dienst te nemen.
-              </p>
-            </div>
-          </div>
-
-          <p
-            className="text-center reveal"
+          <div
+            className="flex reveal"
             style={{
-              marginTop: "48px",
-              color: "var(--stone-500)",
-              fontSize: "14px",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: "16px",
+              marginBottom: "32px",
             }}
           >
-            Werkgever kiest per match welke contract-vorm past. KLOK pakt alleen
-            de matching-fee.
-          </p>
+            <div>
+              <span className="eyebrow">— Vers van het blog</span>
+              <h2
+                className="section-title"
+                style={{ fontSize: "clamp(32px, 4vw, 56px)" }}
+              >
+                Kennis van de <em>werkvloer.</em>
+              </h2>
+            </div>
+            <Link href="/blog" className="btn btn-ghost">
+              Alle artikelen →
+            </Link>
+          </div>
+
+          <div className="blog-grid reveal">
+            {blogTeasers.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="blog-card"
+              >
+                <div className={`bc-visual tint-${post.tint}`}>
+                  <span className="bc-cat">{post.category}</span>
+                  <span aria-hidden>{post.emoji}</span>
+                </div>
+                <div className="bc-body">
+                  <h3 className="bc-title">{post.title}</h3>
+                  <p className="bc-excerpt">{post.excerpt}</p>
+                  <div className="bc-meta">
+                    <span>{formatBlogDate(post.date)}</span>
+                    <span>{post.readingMinutes} min lezen</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section
-        style={{ padding: "80px 0", background: "var(--paper)" }}
-      >
+      {/* ============ SLOT-CTA ============ */}
+      <section className="mkt-section" style={{ paddingTop: 0 }}>
         <div className="mkt-container">
-          <div
-            className="text-center"
-            style={{ maxWidth: "720px", margin: "0 auto 48px" }}
-          >
-            <span className="eyebrow">— UNIEK · LEVENSLANG VERDIENEN</span>
-            <h2 className="section-title mt-2">
-              Ken jij iemand voor een vacature?
-              <br />
-              <em>Verdien levenslang mee.</em>
-            </h2>
-            <p className="section-lead mt-3">
-              Breng iemand aan op KLOK en ontvang een bonus zolang die persoon
-              werkt. Geen MLM. Geen einddatum. Gewoon eerlijk delen.
+          <div className="cta-banner reveal">
+            <span className="eyebrow" style={{ color: "var(--ink)" }}>
+              — De marktplaats staat open
+            </span>
+            <h2>Werk vinden of werk plaatsen?</h2>
+            <p>
+              Gratis voor werknemers, 50 dagen gratis voor werkgevers — en wie
+              vrienden aanbrengt, verdient levenslang mee.
             </p>
-          </div>
-
-          <div className="grid-3" style={{ gap: "16px" }}>
-            <BonusCard
-              eyebrow="— SHIFTS"
-              eyebrowColor="var(--lime-dark)"
-              bg="var(--ink)"
-              color="var(--paper)"
-              amount="€1"
-              suffix="/u"
-              amountColor="var(--lime)"
-              text="Per gewerkt uur dat jouw aangebrachte persoon werkt. Levenslang."
-              textColor="var(--stone-300)"
-            />
-            <BonusCard
-              eyebrow="— VASTE BANEN"
-              eyebrowColor="var(--ink)"
-              bg="var(--lime)"
-              color="var(--ink)"
-              amount="€100"
-              suffix="+/mnd"
-              amountColor="var(--ink)"
-              text="Maandelijkse bonus zolang het contract loopt. Tot €7.200 per aanbrenging."
-              textColor="var(--ink)"
-            />
             <div
-              style={{
-                background: "var(--paper)",
-                border: "1px solid var(--stone-200)",
-                padding: "32px 28px",
-                borderRadius: "12px",
-              }}
+              className="flex gap-2"
+              style={{ justifyContent: "center", flexWrap: "wrap" }}
             >
-              <div className="eyebrow">— GEEN LIMIET</div>
-              <div
-                className="serif mt-2"
-                style={{
-                  fontSize: "42px",
-                  fontWeight: 500,
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                  color: "var(--ink)",
-                }}
-              >
-                ∞
-              </div>
-              <p
-                className="mt-2"
-                style={{
-                  fontSize: "14px",
-                  color: "var(--stone-700)",
-                  lineHeight: 1.5,
-                }}
-              >
-                Onbeperkt aanbrengen. Elke succesvolle plaatsing = aparte bonus.
-              </p>
+              <Link href="/signup" className="btn btn-primary btn-large">
+                Maak gratis profiel →
+              </Link>
+              <Link href="/werkgevers" className="btn btn-ghost btn-large">
+                Plaats een vacature
+              </Link>
             </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Link href="/aanbrengen" className="btn btn-primary btn-large">
-              Meer over aanbrengen →
-            </Link>
-            <Link
-              href="/vacatures"
-              className="btn btn-ghost btn-large"
-              style={{ marginLeft: "8px" }}
-            >
-              Bekijk vacatures
-            </Link>
           </div>
         </div>
       </section>
@@ -972,62 +1054,6 @@ function Step({
       <div>
         <p>{text}</p>
       </div>
-    </div>
-  );
-}
-
-function BonusCard({
-  eyebrow,
-  eyebrowColor,
-  bg,
-  color,
-  amount,
-  suffix,
-  amountColor,
-  text,
-  textColor,
-}: {
-  eyebrow: string;
-  eyebrowColor: string;
-  bg: string;
-  color: string;
-  amount: string;
-  suffix: string;
-  amountColor: string;
-  text: string;
-  textColor: string;
-}) {
-  return (
-    <div
-      style={{
-        background: bg,
-        color,
-        padding: "32px 28px",
-        borderRadius: "12px",
-      }}
-    >
-      <div className="eyebrow" style={{ color: eyebrowColor }}>
-        {eyebrow}
-      </div>
-      <div
-        className="serif mt-2"
-        style={{
-          fontSize: "42px",
-          fontWeight: 500,
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-          color: amountColor,
-        }}
-      >
-        {amount}
-        <span style={{ fontSize: "0.5em" }}>{suffix}</span>
-      </div>
-      <p
-        className="mt-2"
-        style={{ fontSize: "14px", color: textColor, lineHeight: 1.5 }}
-      >
-        {text}
-      </p>
     </div>
   );
 }

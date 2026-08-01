@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { eur, isDemoMode, METHOD_LABELS } from "@/lib/payments";
+import { lazyRunBilling } from "@/lib/billing";
+import {
+  TRIAL_DAYS,
+  feePerVacancyCents,
+  monthlySavingsCents,
+  monthlyTotalCents,
+} from "@/lib/pricing";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import PayButton from "./pay-button";
@@ -28,11 +35,24 @@ export default async function FacturenPage({
 
   const { data: employer } = await supabase
     .from("employers")
-    .select("id, company_name")
+    .select("id, company_name, billing_method")
     .eq("user_id", user!.id)
     .single();
 
   if (!employer) redirect("/dashboard/instellingen");
+
+  // Lazy billing-run: verschuldigde vacature-fees direct factureren zodat
+  // dit overzicht altijd actueel is (cron is de vangnet-route).
+  await lazyRunBilling(employer.id);
+
+  // Actieve vacatures voor het abonnement-overzicht
+  const { data: activeVacs } = await supabase
+    .from("vacancies")
+    .select("id, title, billing_status, trial_ends_at, next_charge_at")
+    .eq("employer_id", employer.id)
+    .in("status", ["open", "paused"])
+    .neq("billing_status", "stopped")
+    .order("next_charge_at", { ascending: true });
 
   let query = supabase
     .from("invoices")
@@ -92,6 +112,14 @@ export default async function FacturenPage({
           standaard methode of direct via iDEAL.
         </p>
       </div>
+
+      {/* Abonnement-overzicht: actieve vacatures + staffel + volgende incasso */}
+      <SubscriptionOverview
+        vacancies={(activeVacs ?? []) as ActiveVacancyRow[]}
+        billingMethod={
+          (employer.billing_method as "incasso" | "factuur" | null) ?? null
+        }
+      />
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
@@ -253,6 +281,133 @@ export default async function FacturenPage({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+type ActiveVacancyRow = {
+  id: string;
+  title: string;
+  billing_status: string;
+  trial_ends_at: string | null;
+  next_charge_at: string | null;
+};
+
+function SubscriptionOverview({
+  vacancies,
+  billingMethod,
+}: {
+  vacancies: ActiveVacancyRow[];
+  billingMethod: "incasso" | "factuur" | null;
+}) {
+  if (vacancies.length === 0) return null;
+
+  const now = new Date().toISOString();
+  const payingCount = vacancies.filter(
+    (v) => v.trial_ends_at !== null && v.trial_ends_at <= now
+  ).length;
+  const count = vacancies.length;
+  const fee = feePerVacancyCents(count);
+  const savings = monthlySavingsCents(count);
+  const nextCharge = vacancies
+    .map((v) => v.next_charge_at)
+    .filter((d): d is string => d !== null)
+    .sort()[0];
+
+  return (
+    <div className="bg-ink text-paper rounded-lg p-5 mb-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="eyebrow text-stone-400">
+            Jouw abonnement · staffel actief
+          </div>
+          <div className="font-serif text-2xl font-medium mt-1">
+            {count} actieve vacature{count === 1 ? "" : "s"} ·{" "}
+            <span className="text-lime">{eur(fee)}</span>
+            <span className="text-sm text-stone-400"> /mnd per vacature</span>
+          </div>
+          <div className="text-sm text-stone-400 mt-1">
+            {payingCount < count && (
+              <>
+                {count - payingCount} nog in gratis proefperiode (
+                {TRIAL_DAYS} dagen) ·{" "}
+              </>
+            )}
+            Maandtotaal na proefperiodes:{" "}
+            <strong className="text-paper">
+              {eur(monthlyTotalCents(count))} ex btw
+            </strong>
+            {savings > 0 && (
+              <span className="text-lime"> · staffelvoordeel {eur(savings)}/mnd</span>
+            )}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="eyebrow text-stone-400">
+            {billingMethod === "incasso"
+              ? "Volgende incasso"
+              : "Volgende factuur"}
+          </div>
+          <div className="font-serif text-xl mt-1">
+            {nextCharge
+              ? new Date(nextCharge).toLocaleDateString("nl-NL", {
+                  day: "numeric",
+                  month: "long",
+                })
+              : "—"}
+          </div>
+          <Link
+            href="/dashboard/betaalmethodes"
+            className="text-xs text-lime hover:underline"
+          >
+            {billingMethod === "incasso"
+              ? "via automatische incasso →"
+              : billingMethod === "factuur"
+                ? "op factuur (14 dgn) →"
+                : "⚠ kies betaalwijze →"}
+          </Link>
+        </div>
+      </div>
+
+      {/* Per-vacature status */}
+      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-2">
+        {vacancies.map((v) => {
+          const inTrial =
+            v.trial_ends_at !== null && v.trial_ends_at > now;
+          return (
+            <div
+              key={v.id}
+              className="flex items-center justify-between gap-3 text-sm bg-white/5 rounded-md px-3 py-2"
+            >
+              <span className="truncate">{v.title}</span>
+              {inTrial ? (
+                <span className="text-xs bg-lime/20 text-lime px-2 py-0.5 rounded-full whitespace-nowrap">
+                  gratis t/m{" "}
+                  {new Date(v.trial_ends_at!).toLocaleDateString("nl-NL", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </span>
+              ) : (
+                <span className="text-xs text-stone-400 whitespace-nowrap">
+                  {eur(fee)}/mnd · volgende{" "}
+                  {v.next_charge_at
+                    ? new Date(v.next_charge_at).toLocaleDateString("nl-NL", {
+                        day: "numeric",
+                        month: "short",
+                      })
+                    : "—"}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-xs text-stone-500 mt-3">
+        Vacature offline halen ={" "}
+        {billingMethod === "factuur" ? "facturatie" : "incasso"} stopt
+        automatisch — er start geen nieuwe maand.
+      </p>
     </div>
   );
 }

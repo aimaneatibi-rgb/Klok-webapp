@@ -11,7 +11,9 @@ export default async function NewVacancyPage() {
 
   const { data: employer } = await supabase
     .from("employers")
-    .select("id, company_name, about, coop_agreement_signed_at")
+    .select(
+      "id, company_name, about, coop_agreement_signed_at, billing_method, mollie_mandate_status"
+    )
     .eq("user_id", user!.id)
     .single();
 
@@ -55,14 +57,15 @@ export default async function NewVacancyPage() {
         Nieuwe vacature plaatsen
       </h1>
       <p className="text-stone-500 text-sm mb-8">
-        Vaste positie. Werknemers kunnen solliciteren. Maandelijkse fee start
-        bij plaatsing.
+        Vaste positie. Werknemers kunnen solliciteren. De eerste 14 dagen zijn
+        gratis; daarna start de maandelijkse fee automatisch.
       </p>
 
       <NewVacancyForm
         employerId={employer.id}
         initialAbout={employer.about ?? ""}
         currentActiveCount={activeCount ?? 0}
+        billingMethod={employer.billing_method ?? null}
       />
     </div>
   );

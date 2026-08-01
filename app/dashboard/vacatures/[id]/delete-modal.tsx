@@ -63,10 +63,11 @@ export default function DeleteVacancyModal({
       return;
     }
 
-    // 2) Archiveer vacature (niet hard-deleten i.v.m. data integriteit / facturen)
+    // 2) Archiveer vacature (niet hard-deleten i.v.m. data integriteit /
+    //    facturen) en stop de facturatie definitief.
     const { error: updErr } = await supabase
       .from("vacancies")
-      .update({ status: "archived" })
+      .update({ status: "archived", billing_status: "stopped" })
       .eq("id", vacancyId);
     if (updErr) {
       setError(updErr.message);
@@ -117,8 +118,9 @@ export default function DeleteVacancyModal({
             <div className="p-6 space-y-4">
               <p className="text-sm text-stone-600">
                 Je gaat <strong>&ldquo;{vacancyTitle}&rdquo;</strong>{" "}
-                verwijderen. Vanaf nu stopt de maandelijkse fee voor deze
-                vacature.
+                verwijderen. De incasso/facturatie voor deze vacature stopt
+                per direct — er start geen nieuwe maand. Zit de vacature nog
+                in de gratis proefperiode, dan betaal je helemaal niets.
               </p>
 
               <div>
@@ -159,9 +161,9 @@ export default function DeleteVacancyModal({
               </div>
 
               <div className="bg-amber-50 border border-amber-300 rounded-md p-3 text-xs text-amber-900">
-                <strong>Geen restitutie:</strong> voor de lopende maand vindt
-                geen restitutie plaats. De factuur is al verstuurd of wordt
-                pro-rata afgerond.
+                <strong>Geen restitutie:</strong> een al gefactureerde maand
+                wordt niet terugbetaald. Er volgen geen nieuwe incasso&apos;s
+                of facturen meer voor deze vacature.
               </div>
 
               {error && (

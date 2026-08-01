@@ -1,47 +1,97 @@
-// Vacature-prijs: vlak tarief van €195 ex btw per vacature per maand,
-// via automatische incasso. De eerste 50 dagen na launch is plaatsen gratis
-// (zie CLIENT_BILLING_STARTS_AT in lib/feature-flags.ts).
+// ============================================================
+// Prijsmodel vacatures
 //
-// NB: de oude staffel (€235→€150 met volumekorting) is bewust vervangen door
-// één vlak tarief. Wil je weer volumekorting? Zet meerdere tiers terug.
+//  - Elke vacature start met 14 dagen gratis proefperiode.
+//  - Daarna per maand, ex btw, via automatische incasso (Mollie)
+//    of op factuur (14 dagen betaaltermijn).
+//  - Staffelkorting over het TOTAAL aantal actieve vacatures:
+//    het tarief van de staffel geldt voor ál je actieve vacatures.
+//  - Facturatie stopt zodra een vacature offline (gearchiveerd) is;
+//    een extra vacature krijgt haar eigen proefperiode en wordt na
+//    afloop daarvan direct geïncasseerd of gefactureerd.
+// ============================================================
 
-import { VACATURE_PRICE_EX_BTW } from "./feature-flags";
+/** Gratis proefperiode per vacature, in dagen. */
+export const TRIAL_DAYS = 14;
+
+/** Betaaltermijn voor facturen, in dagen. */
+export const INVOICE_TERM_DAYS = 14;
+
+/** Btw-tarief. */
+export const VAT_RATE = 0.21;
 
 export type PricingTier = {
   minCount: number;
   maxCount: number | null; // null = onbeperkt
-  monthlyCents: number;
+  monthlyCents: number; // per vacature per maand, ex btw
   label: string;
 };
 
-/** Vlak tarief: elke vacature kost hetzelfde per maand. */
+/**
+ * Staffel: hoe meer actieve vacatures, hoe lager het tarief
+ * per vacature — en dat tarief geldt voor ALLE actieve vacatures.
+ */
 export const VACANCY_PRICING_TIERS: PricingTier[] = [
-  {
-    minCount: 1,
-    maxCount: null,
-    monthlyCents: VACATURE_PRICE_EX_BTW * 100,
-    label: "Vast tarief",
-  },
+  { minCount: 1, maxCount: 1, monthlyCents: 19500, label: "1 vacature" },
+  { minCount: 2, maxCount: 3, monthlyCents: 17500, label: "2–3 vacatures" },
+  { minCount: 4, maxCount: null, monthlyCents: 14900, label: "4+ vacatures" },
 ];
 
 export const SHIFT_PLATFORM_FEE_RATE = 0.115;
 
-/**
- * Bereken de prijs per maand voor de N-de vacature
- * (N = aantal actieve vacatures INCLUSIEF de nieuwe)
- */
+/** Staffel-tier op basis van het totaal aantal actieve vacatures. */
+export function getTierForCount(totalActive: number): PricingTier {
+  return (
+    VACANCY_PRICING_TIERS.find(
+      (t) =>
+        totalActive >= t.minCount &&
+        (t.maxCount === null || totalActive <= t.maxCount)
+    ) ?? VACANCY_PRICING_TIERS[VACANCY_PRICING_TIERS.length - 1]
+  );
+}
+
+/** Tarief per vacature per maand (ex btw) bij N actieve vacatures. */
+export function feePerVacancyCents(totalActive: number): number {
+  return getTierForCount(Math.max(1, totalActive)).monthlyCents;
+}
+
+/** Maandtotaal (ex btw) bij N actieve vacatures — staffel over alles. */
+export function monthlyTotalCents(totalActive: number): number {
+  if (totalActive <= 0) return 0;
+  return feePerVacancyCents(totalActive) * totalActive;
+}
+
+/** Besparing per maand t.o.v. het basistarief, door de staffel. */
+export function monthlySavingsCents(totalActive: number): number {
+  if (totalActive <= 0) return 0;
+  const base = VACANCY_PRICING_TIERS[0].monthlyCents * totalActive;
+  return base - monthlyTotalCents(totalActive);
+}
+
+/** Compat: prijs per maand voor de N-de vacature (staffel-tarief). */
 export function getVacancyMonthlyFee(totalActiveAfterAdding: number): {
   cents: number;
   tier: PricingTier;
 } {
-  const tier =
-    VACANCY_PRICING_TIERS.find(
-      (t) =>
-        totalActiveAfterAdding >= t.minCount &&
-        (t.maxCount === null || totalActiveAfterAdding <= t.maxCount)
-    ) ?? VACANCY_PRICING_TIERS[VACANCY_PRICING_TIERS.length - 1];
-
+  const tier = getTierForCount(Math.max(1, totalActiveAfterAdding));
   return { cents: tier.monthlyCents, tier };
+}
+
+/** Einde proefperiode voor een vacature die nu (of op `from`) live gaat. */
+export function trialEndsAt(from: Date = new Date()): Date {
+  const d = new Date(from);
+  d.setDate(d.getDate() + TRIAL_DAYS);
+  return d;
+}
+
+/** Btw over een bedrag ex btw. */
+export function vatCents(subtotalCents: number): number {
+  return Math.round(subtotalCents * VAT_RATE);
+}
+
+/** Totaal incl. btw. */
+export function totalInclVatCents(subtotalCents: number): number {
+  return subtotalCents + vatCents(subtotalCents);
 }
 
 export function eur(cents: number): string {
@@ -56,7 +106,9 @@ export function eurShort(cents: number): string {
 }
 
 /**
- * Pro-rata berekening voor de eerste factuur deze maand
+ * Pro-rata berekening voor de eerste factuur deze maand.
+ * (Niet meer gebruikt in de standaard-flow — elke vacature heeft een
+ * eigen maandcyclus vanaf einde proefperiode — maar handig voor admin.)
  */
 export function calculateProRata(monthlyCents: number): {
   daysRemaining: number;
@@ -67,10 +119,8 @@ export function calculateProRata(monthlyCents: number): {
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const today = now.getDate();
   const daysRemaining = lastDay - today + 1; // incl. vandaag
-  const proRataCents = Math.round(
-    (monthlyCents * daysRemaining) / lastDay
-  );
+  const proRataCents = Math.round((monthlyCents * daysRemaining) / lastDay);
   return { daysRemaining, totalDays: lastDay, proRataCents };
 }
 
-export const COOP_AGREEMENT_VERSION = "1.0";
+export const COOP_AGREEMENT_VERSION = "1.1";

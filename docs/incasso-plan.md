@@ -1,83 +1,61 @@
-# SEPA automatische incasso — implementatieplan
+# Vacature-billing — Mollie-incasso, factuur & staffel
 
-> Status: **plan, nog niet gebouwd.** De €195-incasso staat overal correct als
-> tekst/UX, maar er wordt nog geen geld geïncasseerd. Dit document beschrijft
-> hoe we dat werkend maken.
+> Status: **GEBOUWD (2026-08-01)** — Mollie-ready; draait in demo-mode
+> (gesimuleerde incasso) tot `MOLLIE_API_KEY` gezet is.
 
-## Doel
+## Het model
 
-Maandelijkse SEPA-incasso van **€195 ex btw per actieve vacature**, via
-automatische incasso. De **eerste 50 dagen na launch zijn gratis** (geen
-incasso) — zie `CLIENT_BILLING_STARTS_AT` en `isClientBillingActive()` in
-[`lib/feature-flags.ts`](../lib/feature-flags.ts).
+- **14 dagen gratis proefperiode per vacature** (`TRIAL_DAYS` in
+  [`lib/pricing.ts`](../lib/pricing.ts)). Offline vóór het einde = € 0.
+- Daarna **maandelijks, ex btw, met staffel over ál je actieve vacatures**:
+  | Actieve vacatures | Tarief p/vacature p/mnd |
+  |---|---|
+  | 1 | € 195 |
+  | 2–3 | € 175 |
+  | 4+ | € 149 |
+- **Betaalwijze per werkgever**: `incasso` (Mollie-mandaat) of `factuur`
+  (14 dagen betaaltermijn). Keuze in Dashboard → Betaalmethodes.
+- **Eigen maandcyclus per vacature** (anker = einde proefperiode). Een extra
+  vacature krijgt haar eigen proefperiode en wordt daarna automatisch
+  meegenomen in de eerstvolgende run — direct geïncasseerd of gefactureerd.
+- **Offline halen (archiveren) stopt de betaling** — `billing_status:
+  'stopped'`, geen nieuwe maand. Geen restitutie voor een al gestarte maand.
 
-## Gekozen route: Mollie recurring + Moneybird
+## Architectuur
 
-- **Mollie** doet het incasseren (mandaat online afgeven + maandelijkse SEPA
-  Direct Debit + retries bij stornering + webhooks). Zit al half in het project.
-- **Moneybird** doet de administratie (facturen, btw 21%, boekhouding). Mollie
-  ↔ Moneybird-koppeling bestaat.
+| Onderdeel | Bestand |
+|---|---|
+| Prijzen/staffel/trial | `lib/pricing.ts` |
+| Mollie-client (fetch, dependency-vrij) | `lib/mollie.ts` |
+| Billing-engine | `lib/billing.ts` |
+| Betaalwijze kiezen + mandaatflow | `POST /api/billing/method` |
+| Mollie-webhook (mandaat + incasso) | `POST /api/billing/webhook` |
+| Facturatie-run (cron, dagelijks 06:00 via vercel.json) | `GET/POST /api/billing/run` |
+| Service-role client | `lib/supabase/admin.ts` |
+| Migratie | `sql/0004_billing.sql` |
 
-Reden boven boekhoud-only incasso: we willen een strakke self-service flow waar
-de opdrachtgever bij plaatsen online een mandaat afgeeft, niet een batchgewijs
-pain.008-bestand dat handmatig bij de bank moet.
+Flow incasso: werkgever kiest "Automatische incasso" → Mollie customer +
+first payment € 0,01 (hosted checkout) → webhook zet mandaat op `valid` →
+elke run maakt per werkgever één verzamelfactuur en int via
+`sequenceType: recurring`; de webhook zet de factuur op `paid` (stornering →
+`overdue`, werkgever kan alsnog handmatig betalen).
 
-## Flow
+Flow factuur: run maakt dezelfde verzamelfactuur met `due_date` +14 dagen;
+betalen via de bestaande facturen-pagina.
 
-1. **Mandaat vastleggen** (eenmalig, bij eerste plaatsing of bij aanmelden):
-   Mollie vereist een *first payment* (`sequenceType: first`, bv. via iDEAL,
-   eventueel €0,01 verificatie) om een geldig mandaat voor recurring SEPA te
-   krijgen. Resultaat: `mollie_customer_id` + `mollie_mandate_id`.
-2. **Abonnement per vacature**: elke vacature = één Mollie *subscription* van
-   €195/maand, `startDate = max(CLIENT_BILLING_STARTS_AT, plaatsingsdatum)`.
-   Zo respecteert de incasso automatisch de 50-dagen-gratis-periode.
-3. **Maandelijkse incasso**: Mollie int automatisch; stuurt webhook per betaling.
-4. **Opzeggen**: vacature verwijderen → bijbehorende subscription cancellen.
-5. **Boekhouding**: per betaalde incasso een factuur in Moneybird (btw 21%).
+Triggers: **lazy run** bij bezoek aan Dashboard → Facturen (direct actueel) +
+**dagelijkse cron** als vangnet. Beide zijn idempotent: een vacature wordt
+pas opnieuw gefactureerd als haar `next_charge_at` weer verstreken is.
 
-## Datamodel (nieuwe migratie, bv. `sql/0004_billing.sql`)
+## Livegang-checklist
 
-- `employers`: `mollie_customer_id`, `mollie_mandate_id`, `mandate_status`
-- `vacancies`: `mollie_subscription_id`, `billing_status`
-  (`free` | `active` | `past_due` | `cancelled`)
-- nieuw `payments`: `id`, `employer_id`, `vacancy_id`, `mollie_payment_id`,
-  `amount_cents`, `status`, `period_start`, `period_end`, `moneybird_invoice_id`
-
-## API-routes (nieuw onder `app/api/payments/`)
-
-- `POST /api/payments/mandate` — maak Mollie customer + first payment, redirect
-  naar Mollie checkout.
-- `POST /api/payments/subscription` — maak/cancel subscription per vacature.
-- `POST /api/payments/webhook` — Mollie webhook: betaling betaald/mislukt →
-  update `payments` + `vacancies.billing_status` + factuur in Moneybird.
-
-Inhaken in [`new-vacancy-form.tsx`](../app/dashboard/vacatures/new/new-vacancy-form.tsx):
-tijdens gratis-periode alleen vacature aanmaken (modal toont al "gratis"); zodra
-billing actief is of bij eerste betaalde plaatsing → mandaat-flow starten.
-
-## Env / secrets (nog nodig van jou)
-
-- `MOLLIE_API_KEY` (test eerst, dan live)
-- `MONEYBIRD_API_TOKEN` + `MONEYBIRD_ADMINISTRATION_ID`
-
-Webhook-verificatie bij Mollie: niet via secret maar door het betaal-id opnieuw
-op te halen bij Mollie in de webhook-handler.
-
-## Btw & juridisch
-
-- €195 **ex** btw → factuur met 21% btw (= €235,95 incl.). Moneybird rekent btw.
-- SEPA-mandaat vereist. Standaard **CORE** (8 weken terugboekrecht) is het
-  eenvoudigst; **B2B** (geen terugboekrecht) kan voor zakelijke opdrachtgevers
-  maar vereist mandaatregistratie bij de bank. Mollie gebruikt standaard CORE.
-- Machtigingstekst staat al deels in de samenwerkingsovereenkomst
-  ([`sign-form.tsx`](../app/dashboard/overeenkomst/sign-form.tsx)); juridisch
-  laten checken vóór live.
-
-## Wat ik nodig heb om te bouwen
-
-1. Mollie **test** API-key.
-2. Moneybird token + administration-id (mag later; Mollie eerst).
-3. Akkoord op bovenstaand datamodel.
-
-Daarna bouw ik het in deze volgorde: migratie → mandaat-flow → subscription per
-vacature → webhook + statusupdate → Moneybird-facturen.
+1. `sql/0004_billing.sql` draaien in de Supabase SQL Editor.
+2. Env vars in Vercel: `MOLLIE_API_KEY` (eerst test_), `SUPABASE_SERVICE_ROLE_KEY`,
+   `BILLING_RUN_SECRET` (of `CRON_SECRET`), `NEXT_PUBLIC_SITE_URL`.
+3. Testbetaling: betaalwijze → incasso → € 0,01 via test-iDEAL → mandaat
+   `valid` in employers-tabel → vacature met verlopen `next_charge_at` →
+   facturen-pagina openen → factuur + gesimuleerde/echte incasso.
+4. Samenwerkingsovereenkomst is v1.1 (nieuw prijsmodel) — **juridische
+   hercheck aanbevolen** (v1.0 was goedgekeurd 2026-05-22).
+5. Later: Moneybird-koppeling voor de boekhouding (facturen zitten nu in de
+   eigen `invoices`-tabel; PDF/boekhoudexport is een vervolg).

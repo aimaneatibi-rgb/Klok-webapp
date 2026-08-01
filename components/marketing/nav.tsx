@@ -2,12 +2,12 @@ import Link from "next/link";
 import MarketingScripts from "./scripts";
 
 const LINKS = [
+  { href: "/vacatures", label: "Vacatures" },
   { href: "/werknemers", label: "Voor werknemers" },
   { href: "/werkgevers", label: "Voor werkgevers" },
-  { href: "/vacatures", label: "Vacatures" },
   { href: "/aanbrengen", label: "Aanbrengen" },
-  { href: "/over-ons", label: "Over ons" },
-  { href: "/help", label: "FAQ" },
+  { href: "/blog", label: "Blog" },
+  { href: "/download", label: "App" },
 ];
 
 export default function MarketingNav({ active }: { active?: string }) {

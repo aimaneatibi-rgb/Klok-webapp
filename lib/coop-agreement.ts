@@ -1,5 +1,8 @@
 // Samenwerkingsovereenkomst KLOK Works ↔ Opdrachtgever
 // Versie 1.0 — juridisch gereviewd en goedgekeurd 2026-05-22
+// Versie 1.1 — 2026-08-01: nieuw prijsmodel (14 dagen proefperiode,
+//   € 195 met staffel € 175 / € 149, betaling via incasso óf factuur).
+//   LET OP: wijziging t.o.v. de goedgekeurde 1.0 — juridische hercheck aanbevolen.
 
 export const KLOK_LEGAL_ENTITY = {
   name: "KLOK Works",
@@ -122,21 +125,23 @@ ARTIKEL 3 — TARIEVEN
 
 3.2 VACATURES — Maandelijkse fee
     Voor elke Vacature die zich in status "open" of "paused" op het Platform
-    bevindt, is Opdrachtgever een maandelijkse fee verschuldigd van € 235,-
-    (tweehonderdvijfendertig euro) exclusief BTW, ongeacht of de Vacature
-    daadwerkelijk wordt ingevuld.
+    bevindt, is Opdrachtgever na afloop van de proefperiode (art. 3.3) een
+    maandelijkse fee verschuldigd van € 195,- (honderdvijfennegentig euro)
+    exclusief BTW, ongeacht of de Vacature daadwerkelijk wordt ingevuld.
 
-    Volumekorting (staffel) is van toepassing:
-    - 1 actieve Vacature: € 235 per maand per Vacature
-    - 2-4 actieve Vacatures: € 200 per maand per Vacature
-    - 5-9 actieve Vacatures: € 175 per maand per Vacature
-    - 10+ actieve Vacatures: maatwerktarief, op aanvraag
+    Volumekorting (staffel) is van toepassing; het staffeltarief geldt voor
+    álle gelijktijdig actieve Vacatures:
+    - 1 actieve Vacature: € 195 per maand per Vacature
+    - 2-3 actieve Vacatures: € 175 per maand per Vacature
+    - 4 of meer actieve Vacatures: € 149 per maand per Vacature
 
-3.3 EERSTE FACTURATIE & PRO-RATA
-    Bij plaatsing van een Vacature ontvangt Opdrachtgever direct een
-    pro-rata factuur voor de resterende dagen van de lopende kalendermaand.
-    Vanaf de eerste van de volgende maand wordt de volledige maandelijkse fee
-    in rekening gebracht.
+3.3 PROEFPERIODE & FACTURATIECYCLUS
+    Elke Vacature kent een gratis proefperiode van 14 (veertien) dagen vanaf
+    plaatsing. Wordt de Vacature binnen de proefperiode offline gehaald, dan
+    is geen fee verschuldigd. Na afloop van de proefperiode wordt de
+    maandelijkse fee per Vacature vooraf in rekening gebracht — naar keuze
+    van Opdrachtgever via automatische SEPA-incasso (via Mollie) of op
+    factuur — telkens per maand vanaf het einde van de proefperiode.
 
 3.4 EINDE VACATURE
     Opdrachtgever is zélf verantwoordelijk voor het verwijderen of archiveren

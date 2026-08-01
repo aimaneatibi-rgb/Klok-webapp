@@ -107,8 +107,9 @@ export default async function VacaturesPage({
             Mijn vacatures ({count ?? 0})
           </h1>
           <p className="text-stone-500 text-sm mt-1">
-            Plaats vaste posities. De eerste 50 dagen gratis; daarna € 195 per
-            vacature per maand (ex btw) via automatische incasso.
+            Plaats vaste posities. Elke vacature start met 14 dagen gratis;
+            daarna v.a. € 149 per vacature per maand (ex btw, staffel) via
+            automatische incasso of op factuur.
           </p>
         </div>
         <Link

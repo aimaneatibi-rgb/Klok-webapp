@@ -77,11 +77,17 @@ export default function VoorwaardenPage() {
           <Section heading="4. Tarieven en betaling">
             <p>
               <strong>Werkgever:</strong> voor vacatures geldt een tarief van
-              € 195 per vacature per maand (exclusief btw), via automatische
-              incasso, zolang de vacature open staat. Tijdens de launchperiode
-              zijn de eerste 50 dagen kosteloos. Voor shifts rekent KLOK een
-              platformfee van 11,5% over het bruto-uurloon per shift. Actuele
-              tarieven staan in het dashboard.
+              € 195 per vacature per maand (exclusief btw), zolang de vacature
+              open staat. Elke vacature start met een gratis proefperiode van
+              14 dagen. Bij meerdere gelijktijdig actieve vacatures geldt een
+              staffeltarief (2–3 vacatures: € 175; 4 of meer: € 149 per
+              vacature per maand, exclusief btw) voor alle actieve vacatures.
+              Betaling geschiedt naar keuze via automatische SEPA-incasso
+              (via Mollie) of op factuur. Bij het offline halen van een
+              vacature stopt de facturatie; reeds gefactureerde periodes worden
+              niet gerestitueerd. Voor shifts rekent KLOK een platformfee van
+              11,5% over het bruto-uurloon per shift. Actuele tarieven staan in
+              het dashboard.
             </p>
             <p>
               <strong>Werknemer:</strong> gebruik van het platform is gratis.

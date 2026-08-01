@@ -1,11 +1,22 @@
 import type { MetadataRoute } from "next";
+import { BLOG_POSTS } from "@/lib/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.klok.works";
   const lastModified = new Date();
 
+  const blogUrls: MetadataRoute.Sitemap = BLOG_POSTS.map((p) => ({
+    url: `${baseUrl}/blog/${p.slug}`,
+    lastModified: new Date(p.date),
+    changeFrequency: "yearly",
+    priority: 0.6,
+  }));
+
   return [
     { url: `${baseUrl}/`, lastModified, changeFrequency: "weekly", priority: 1 },
+    { url: `${baseUrl}/blog`, lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${baseUrl}/download`, lastModified, changeFrequency: "monthly", priority: 0.7 },
+    ...blogUrls,
     { url: `${baseUrl}/werknemers`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/werkgevers`, lastModified, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/vacatures`, lastModified, changeFrequency: "daily", priority: 0.9 },
