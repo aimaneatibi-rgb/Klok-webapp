@@ -2,9 +2,8 @@
 // Versie 1.0 — juridisch gereviewd en goedgekeurd 2026-05-22
 // Versie 1.1 — 2026-08-01: nieuw prijsmodel (14 dagen proefperiode,
 //   € 195 met staffel € 175 / € 149, betaling via incasso óf factuur).
-//   LET OP: wijziging t.o.v. de goedgekeurde 1.0 — juridische hercheck aanbevolen.
 // Versie 1.2 — 2026-08-02: betaaltermijn facturen 14 → 7 dagen (art. 3.5).
-//   LET OP: nog niet juridisch gereviewd — hercheck van 1.1 + 1.2 samen aanbevolen.
+//   Juridisch goedgekeurd door advocaat op 2026-08-02 (incl. 1.1-wijzigingen).
 
 export const KLOK_LEGAL_ENTITY = {
   name: "KLOK Works",
