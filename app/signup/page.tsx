@@ -69,6 +69,22 @@ function SignupInner() {
 
     const supabase = createClient();
 
+    // Rollback: als stap 2 faalt verwijderen we het zojuist aangemaakte
+    // account weer (rpc weigert zodra er al een profielrij bestaat), zodat
+    // er nooit een half account achterblijft en opnieuw proberen gewoon werkt.
+    async function rollbackSignup(reason: string) {
+      const { error: rollbackError } = await supabase.rpc(
+        "rollback_incomplete_signup"
+      );
+      await supabase.auth.signOut();
+      setError(
+        rollbackError
+          ? `${reason} Automatisch opruimen is ook mislukt — probeer het later opnieuw of neem contact op.`
+          : `${reason} Er is geen account aangemaakt — controleer je gegevens en probeer het opnieuw.`
+      );
+      setLoading(false);
+    }
+
     // Stap 1: auth user aanmaken (handle_new_user trigger maakt users-row aan)
     const metadata: Record<string, string> = { user_type: userType };
     if (userType === "employee") {
@@ -120,10 +136,9 @@ function SignupInner() {
         .single();
 
       if (empError || !newEmployer) {
-        setError(
-          `Account aangemaakt maar bedrijfsdata mislukt: ${empError?.message ?? "onbekende fout"}`
+        await rollbackSignup(
+          `Bedrijfsdata opslaan mislukt: ${empError?.message ?? "onbekende fout"}.`
         );
-        setLoading(false);
         return;
       }
 
@@ -173,10 +188,9 @@ function SignupInner() {
         .single();
 
       if (empError || !newEmployee) {
-        setError(
-          `Account aangemaakt maar profiel mislukt: ${empError?.message ?? "onbekende fout"}`
+        await rollbackSignup(
+          `Profiel aanmaken mislukt: ${empError?.message ?? "onbekende fout"}.`
         );
-        setLoading(false);
         return;
       }
 
