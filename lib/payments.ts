@@ -31,7 +31,7 @@ export const METHOD_DESCRIPTIONS: Record<PaymentMethodType, string> = {
     "Per factuur betalen via iDEAL. Geen mandaat nodig, betaling direct verwerkt.",
   card: "Mastercard of Visa. Eenmalig opslaan, daarna automatisch belasten of voor losse betalingen.",
   bank_transfer:
-    "Klassieke bankoverschrijving op basis van factuur. 14 dagen betalingstermijn.",
+    "Klassieke bankoverschrijving op basis van factuur. 7 dagen betalingstermijn.",
 };
 
 export function isDemoMode() {

@@ -26,6 +26,18 @@ export default async function NewVacancyPage() {
     redirect("/dashboard/overeenkomst");
   }
 
+  // Vereis geverifieerde betaalmethode — zo kunnen we op dag 15 (einde
+  // proefperiode) direct incasseren of factureren. 'factuur' is gekozen =
+  // geverifieerd; 'incasso' pas zodra het Mollie-mandaat rond is.
+  const paymentVerified =
+    employer.billing_method === "factuur" ||
+    (employer.billing_method === "incasso" &&
+      employer.mollie_mandate_status === "valid");
+
+  if (!paymentVerified) {
+    redirect("/dashboard/betaalmethodes?reden=vacature");
+  }
+
   // Vereis primaire contactpersoon — anders kunnen we niet factureren of opvolgen
   const { data: primaryContact } = await supabase
     .from("employer_contacts")

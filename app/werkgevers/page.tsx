@@ -248,7 +248,7 @@ export default function WerkgeversPage() {
               >
                 Per vacature, per maand. Elke vacature start met 14 dagen
                 gratis; daarna betaal je automatisch via incasso of op factuur
-                (14 dagen termijn). Meer vacatures = lager tarief.
+                (7 dagen termijn). Meer vacatures = lager tarief.
               </p>
               <div
                 style={{

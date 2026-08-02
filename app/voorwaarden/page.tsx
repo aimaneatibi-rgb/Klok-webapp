@@ -95,7 +95,7 @@ export default function VoorwaardenPage() {
               eigen voorwaarden en uitbetaaltermijn.
             </p>
             <p>
-              Facturen aan werkgevers zijn betaalbaar binnen 14 dagen. Bij te
+              Facturen aan werkgevers zijn betaalbaar binnen 7 dagen. Bij te
               late betaling geldt de wettelijke handelsrente.
             </p>
           </Section>

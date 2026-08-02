@@ -3,6 +3,8 @@
 // Versie 1.1 — 2026-08-01: nieuw prijsmodel (14 dagen proefperiode,
 //   € 195 met staffel € 175 / € 149, betaling via incasso óf factuur).
 //   LET OP: wijziging t.o.v. de goedgekeurde 1.0 — juridische hercheck aanbevolen.
+// Versie 1.2 — 2026-08-02: betaaltermijn facturen 14 → 7 dagen (art. 3.5).
+//   LET OP: nog niet juridisch gereviewd — hercheck van 1.1 + 1.2 samen aanbevolen.
 
 export const KLOK_LEGAL_ENTITY = {
   name: "KLOK Works",
@@ -151,7 +153,7 @@ ARTIKEL 3 — TARIEVEN
     resterende dagen.
 
 3.5 BETAALTERMIJN
-    Facturen dienen binnen 14 dagen na factuurdatum te worden voldaan via
+    Facturen dienen binnen 7 (zeven) dagen na factuurdatum te worden voldaan via
     SEPA-incasso of overboeking. Bij niet-tijdige betaling is Opdrachtgever
     van rechtswege in verzuim en is wettelijke handelsrente verschuldigd
     (Wet betaalachterstanden bij handelstransacties).

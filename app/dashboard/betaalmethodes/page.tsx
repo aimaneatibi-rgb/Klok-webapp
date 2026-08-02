@@ -19,7 +19,12 @@ export type PaymentMethodRow = {
   created_at: string;
 };
 
-export default async function BetaalmethodesPage() {
+export default async function BetaalmethodesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reden?: string }>;
+}) {
+  const { reden } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -51,9 +56,19 @@ export default async function BetaalmethodesPage() {
         </h1>
         <p className="text-stone-500 text-sm mt-1">
           Kies hoe je je maandelijkse vacature-fees betaalt: automatische
-          incasso via Mollie, of op factuur met 14 dagen betaaltermijn.
+          incasso via Mollie, of op factuur met 7 dagen betaaltermijn.
         </p>
       </div>
+
+      {reden === "vacature" && (
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 text-sm text-amber-900">
+          <strong>⚠️ Eerst je betaalmethode regelen.</strong> Om een vacature
+          te plaatsen heb je een geverifieerde betaalmethode nodig: kies
+          hieronder voor automatische incasso (machtiging via Mollie afronden)
+          of op factuur. Je vacature start daarna gewoon met 14 dagen gratis —
+          pas op dag 15 incasseren of factureren we.
+        </div>
+      )}
 
       <BillingMethodSelector
         current={
@@ -106,7 +121,7 @@ export default async function BetaalmethodesPage() {
           </li>
           <li>
             <strong>Bankoverschrijving</strong> — klassiek, factuur ontvangen
-            en zelf overmaken binnen 14 dagen. Geen provider fee.
+            en zelf overmaken binnen 7 dagen. Geen provider fee.
           </li>
         </ul>
       </div>

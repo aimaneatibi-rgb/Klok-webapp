@@ -462,7 +462,7 @@ function AddMethodModal({
             <>
               <p className="text-sm text-stone-600">
                 Bankoverschrijving: je ontvangt elke factuur per email + in het
-                dashboard. Je maakt zelf het bedrag over binnen 14 dagen.
+                dashboard. Je maakt zelf het bedrag over binnen 7 dagen.
               </p>
               <label className="flex items-start gap-2 text-sm cursor-pointer">
                 <input
@@ -472,7 +472,7 @@ function AddMethodModal({
                   className="mt-1"
                 />
                 <span>
-                  Ik ben me ervan bewust dat ik facturen binnen 14 dagen
+                  Ik ben me ervan bewust dat ik facturen binnen 7 dagen
                   handmatig moet overmaken. Bij verzuim worden incassokosten in
                   rekening gebracht (Wet Incassokosten).
                 </span>

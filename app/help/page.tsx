@@ -18,7 +18,7 @@ const FAQ_WERKGEVER = [
   },
   {
     q: "Wat zijn de kosten?",
-    a: "Voor vacatures betaal je € 195 per vacature per maand (ex btw) — elke vacature start met 14 dagen gratis proefperiode. Plaats je meer vacatures, dan geldt staffelkorting: bij 2–3 vacatures € 175 en vanaf 4 vacatures € 149 per vacature per maand, voor ál je actieve vacatures. Betalen kan via automatische incasso (Mollie) of op factuur met 14 dagen betaaltermijn. Haal je een vacature offline, dan stopt de betaling automatisch. Shifts gaan later live; daarvoor rekenen we 11,5% platformfee over het bruto-uurloon. Werknemers gebruiken het platform altijd gratis.",
+    a: "Voor vacatures betaal je € 195 per vacature per maand (ex btw) — elke vacature start met 14 dagen gratis proefperiode. Plaats je meer vacatures, dan geldt staffelkorting: bij 2–3 vacatures € 175 en vanaf 4 vacatures € 149 per vacature per maand, voor ál je actieve vacatures. Betalen kan via automatische incasso (Mollie) of op factuur met 7 dagen betaaltermijn. Haal je een vacature offline, dan stopt de betaling automatisch. Shifts gaan later live; daarvoor rekenen we 11,5% platformfee over het bruto-uurloon. Werknemers gebruiken het platform altijd gratis.",
   },
   {
     q: "Wat is een payroll-partij?",
@@ -26,7 +26,7 @@ const FAQ_WERKGEVER = [
   },
   {
     q: "Wanneer wordt mijn factuur betaald?",
-    a: "Facturen aan werkgevers zijn betaalbaar binnen 14 dagen via iDEAL of bankoverschrijving (via Mollie). Te late betaling: wettelijke handelsrente.",
+    a: "Facturen aan werkgevers zijn betaalbaar binnen 7 dagen via iDEAL of bankoverschrijving (via Mollie). Te late betaling: wettelijke handelsrente.",
   },
   {
     q: "Kan ik een shift annuleren?",

@@ -99,7 +99,7 @@ export default function BillingConfirmModal({
                 {billingMethod === "incasso"
                   ? "Automatische incasso"
                   : billingMethod === "factuur"
-                    ? "Op factuur (14 dagen)"
+                    ? "Op factuur (7 dagen)"
                     : "Nog te kiezen"}
               </span>
             </div>

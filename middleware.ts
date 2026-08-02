@@ -59,7 +59,11 @@ export async function middleware(request: NextRequest) {
       "/werknemer/shifts",
       "/werknemer/zoeken", // shifts zoeken
     ];
-    const hitsShiftsRoute = shiftsRoutes.some((r) => path.startsWith(r));
+    // Exacte match of subpad — een los startsWith matcht ook
+    // /dashboard/shifts-binnenkort zelf en geeft dan een redirect-loop.
+    const hitsShiftsRoute = shiftsRoutes.some(
+      (r) => path === r || path.startsWith(r + "/")
+    );
     if (hitsShiftsRoute) {
       const url = request.nextUrl.clone();
       url.pathname = path.startsWith("/dashboard")

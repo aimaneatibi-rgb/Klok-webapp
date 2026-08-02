@@ -3,7 +3,7 @@
 //
 //  - Elke vacature start met 14 dagen gratis proefperiode.
 //  - Daarna per maand, ex btw, via automatische incasso (Mollie)
-//    of op factuur (14 dagen betaaltermijn).
+//    of op factuur (7 dagen betaaltermijn).
 //  - Staffelkorting over het TOTAAL aantal actieve vacatures:
 //    het tarief van de staffel geldt voor ál je actieve vacatures.
 //  - Facturatie stopt zodra een vacature offline (gearchiveerd) is;
@@ -15,7 +15,7 @@
 export const TRIAL_DAYS = 14;
 
 /** Betaaltermijn voor facturen, in dagen. */
-export const INVOICE_TERM_DAYS = 14;
+export const INVOICE_TERM_DAYS = 7;
 
 /** Btw-tarief. */
 export const VAT_RATE = 0.21;
@@ -123,4 +123,4 @@ export function calculateProRata(monthlyCents: number): {
   return { daysRemaining, totalDays: lastDay, proRataCents };
 }
 
-export const COOP_AGREEMENT_VERSION = "1.1";
+export const COOP_AGREEMENT_VERSION = "1.2";

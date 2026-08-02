@@ -8,7 +8,7 @@
 //  3. Maak één factuur voor alle verschuldigde vacatures samen.
 //  4. Betaalwijze 'incasso' → Mollie-incasso op het mandaat
 //     (webhook zet de factuur daarna op betaald).
-//     Betaalwijze 'factuur' → factuur met 14 dagen betaaltermijn.
+//     Betaalwijze 'factuur' → factuur met 7 dagen betaaltermijn.
 //  5. Schuif de maandcyclus van elke vacature één maand op.
 //
 // Vacature offline (archived) => billing_status 'stopped' => nooit
