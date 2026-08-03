@@ -1,34 +1,19 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.klok.works";
-
   return {
     rules: [
       {
         userAgent: "*",
-        allow: [
-          "/",
-          "/login",
-          "/signup",
-          "/voorwaarden",
-          "/privacy",
-          "/help",
-          "/werknemers",
-          "/werkgevers",
-          "/vacatures",
-          "/aanbrengen",
-          "/over-ons",
-        ],
-        disallow: [
-          "/dashboard",
-          "/werknemer",
-          "/admin",
-          "/api",
-        ],
+        // "/" laat alles toe; de disallow-regels hieronder knippen er de
+        // afgeschermde delen weer uit. Losse allow-regels per publieke pagina
+        // zijn overbodig en kosten alleen onderhoud bij elke nieuwe route.
+        allow: "/",
+        disallow: ["/dashboard", "/werknemer", "/admin", "/api", "/login"],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

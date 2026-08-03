@@ -1,13 +1,14 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Over ons — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Over KLOK Works",
   description:
-    "Waarom we KLOK Works bouwen — een eerlijke marktplaats die werk en talent verbindt, met een referral-model voor legaal extra inkomen tegen schijnzelfstandigheid.",
-};
+    "Waarom we KLOK Works bouwen: een eerlijke marktplaats die werk en talent verbindt, met een referral-model voor legaal extra inkomen in plaats van schijnzelfstandigheid.",
+  path: "/over-ons",
+});
 
 export default function OverOnsPage() {
   return (

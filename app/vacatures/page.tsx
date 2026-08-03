@@ -1,16 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import VacaturesBrowser from "@/components/marketing/vacatures-browser";
 import { DEMO_VACANCIES, type PublicVacancy } from "@/lib/demo-vacatures";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Vacatures zoeken — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Vacatures in horeca, zorg, logistiek en bouw",
   description:
-    "Doorzoek alle open vacatures op de KLOK-marktplaats. Filter op sector, salaris en uren, bewaar favorieten en solliciteer direct.",
-};
+    "Doorzoek alle open vacatures op de KLOK-marktplaats: filter op sector, salaris en uren, bewaar favorieten en solliciteer direct bij de werkgever. Gratis voor werkzoekenden.",
+  path: "/vacatures",
+});
 
 type VacancyRow = {
   id: string;

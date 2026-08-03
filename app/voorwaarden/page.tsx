@@ -1,12 +1,13 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Algemene voorwaarden · KLOK Works",
+export const metadata = pageMetadata({
+  title: "Algemene voorwaarden",
   description: "Algemene voorwaarden voor gebruik van het KLOK Works platform.",
-};
+  path: "/voorwaarden",
+});
 
 export default function VoorwaardenPage() {
   return (

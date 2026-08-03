@@ -1,14 +1,15 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import PhoneMockup from "@/components/marketing/phone-mockup";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "De KLOK-app — binnenkort voor iOS & Android",
+export const metadata = pageMetadata({
+  title: "De KLOK-app voor iOS en Android",
   description:
     "De volledige marktplaats voor werk in je broekzak: vacatures, shifts, push-notificaties en je verdiensten live. Zet je op de wachtlijst voor vroege toegang.",
-};
+  path: "/download",
+});
 
 const FEATURES = [
   {

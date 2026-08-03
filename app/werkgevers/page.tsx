@@ -1,15 +1,16 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import SavingsCalculator from "@/components/marketing/savings-calculator";
 import DemoRequestForm from "@/components/marketing/demo-request-form";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Voor werkgevers — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Personeel vinden zonder uitzendbureau",
   description:
-    "Slimmer dan een uitzendbureau, eerlijker geprijsd. Bespaar tot 49%.",
-};
+    "Plaats je vacature en werf direct, zonder bureaumarge over elk gewerkt uur. Veertien dagen gratis per vacature, daarna vanaf €149 per maand. Bespaar tot 49% op je inhuurkosten.",
+  path: "/werkgevers",
+});
 
 export default function WerkgeversPage() {
   return (

@@ -1,14 +1,15 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import ReferralCalculator from "@/components/marketing/referral-calculator";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Aanbrengen — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Iemand aanbrengen en levenslang meeverdienen",
   description:
-    "Verdien €1 per gewerkt uur of €100+ per maand — levenslang — door iemand aan te brengen op KLOK.",
-};
+    "Breng een collega of werkgever aan op KLOK en verdien €1 per gewerkt uur — of €100+ per maand — zolang die persoon actief is. Reken zelf uit wat je netwerk oplevert.",
+  path: "/aanbrengen",
+});
 
 export default function AanbrengenPage() {
   return (

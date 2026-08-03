@@ -1,14 +1,15 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import { BLOG_POSTS, formatBlogDate } from "@/lib/blog";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Blog over werk zoeken en personeel werven",
   description:
-    "Praktische gidsen over werk vinden, personeel werven en de marktplaats-economie. Zonder wollige HR-taal.",
-};
+    "Praktische gidsen over werk vinden, personeel werven en wat een uitzendbureau je écht kost. Geschreven zonder wollige HR-taal.",
+  path: "/blog",
+});
 
 export default function BlogIndexPage() {
   const [featured, ...rest] = BLOG_POSTS;

@@ -1,15 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import type { Metadata } from "next";
 import ContactForm from "./contact-form";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Hulp & support · KLOK Works",
+export const metadata = pageMetadata({
+  title: "Veelgestelde vragen en support",
   description:
-    "Veelgestelde vragen en directe ondersteuning voor werkgevers en werknemers op KLOK Works.",
-};
+    "Antwoord op de vragen die werkgevers en werknemers het vaakst stellen: kosten, uitbetaling, shifts annuleren, referrals en je gegevens. Kom je er niet uit, stel je vraag direct.",
+  path: "/help",
+});
 
 const FAQ_WERKGEVER = [
   {
@@ -102,6 +103,27 @@ export default async function HelpPage() {
 
   return (
     <>
+      {/* Alle vragen op deze pagina als FAQPage: Google kan ze uitklapbaar
+          onder het zoekresultaat tonen, wat de klikkans flink vergroot. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            faqJsonLd([...FAQ_ALGEMEEN, ...FAQ_WERKGEVER, ...FAQ_WERKNEMER]),
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Hulp & support", path: "/help" },
+            ]),
+          ),
+        }}
+      />
       <MarketingNav />
       <main className="bg-cream text-ink">
         <div className="max-w-4xl mx-auto px-6 py-16">

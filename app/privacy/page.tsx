@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy policy · KLOK Works",
-  description:
-    "Hoe KLOK Works persoonsgegevens verwerkt onder de AVG/GDPR.",
-};
+export const metadata = pageMetadata({
+  title: "Privacyverklaring",
+  description: "Hoe KLOK Works persoonsgegevens verwerkt onder de AVG/GDPR.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

@@ -146,3 +146,7 @@ function NavLink({
     </Link>
   );
 }
+
+// Afgeschermd gebied: nooit indexeren, ook niet als er ooit een publieke
+// link naartoe lekt. robots.txt sluit het pad al uit, dit is het vangnet.
+export const metadata = { robots: { index: false, follow: false } };

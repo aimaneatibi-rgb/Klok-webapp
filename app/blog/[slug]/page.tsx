@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import { BLOG_POSTS, formatBlogDate, getPost } from "@/lib/blog";
+import { OG_IMAGE, SITE_NAME, SITE_URL, breadcrumbJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
@@ -16,10 +17,32 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
-  if (!post) return { title: "Artikel niet gevonden — KLOK Works" };
+  // Niet-bestaande slug: niet indexeren, anders vult Google de index met 404's.
+  if (!post) {
+    return { title: "Artikel niet gevonden", robots: { index: false } };
+  }
+  const url = `${SITE_URL}/blog/${post.slug}`;
   return {
-    title: `${post.title} — KLOK Works Blog`,
+    title: post.title,
     description: post.excerpt,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.excerpt,
+      url,
+      siteName: SITE_NAME,
+      locale: "nl_NL",
+      publishedTime: post.date,
+      authors: [post.author],
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [OG_IMAGE.url],
+    },
   };
 }
 
@@ -34,8 +57,41 @@ export default async function BlogArticlePage({
 
   const related = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
 
+  // Article + kruimelpad: hiermee weet Google dat dit een artikel is, van
+  // wanneer het is en waar het in de site hangt.
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    inLanguage: "nl-NL",
+    datePublished: post.date,
+    dateModified: post.date,
+    author: { "@type": "Organization", name: post.author, url: `${SITE_URL}/` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+    image: `${SITE_URL}${OG_IMAGE.url}`,
+    articleSection: post.category,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Blog", path: "/blog" },
+              { name: post.title, path: `/blog/${post.slug}` },
+            ]),
+          ),
+        }}
+      />
       <MarketingNav active="/blog" />
 
       <section className="article-hero">

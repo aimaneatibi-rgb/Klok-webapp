@@ -1,14 +1,15 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing/nav";
 import MarketingFooter from "@/components/marketing/footer";
 import ReferralCalculator from "@/components/marketing/referral-calculator";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Voor werknemers — KLOK Works",
+export const metadata = pageMetadata({
+  title: "Werk vinden zonder uitzendbureau",
   description:
-    "Werk wanneer je wilt, verdien aan je netwerk, één app voor alles.",
-};
+    "Zoek vacatures en shifts en reageer direct bij de werkgever. Gratis account, geen bureau dat een marge over je uurloon pakt, en je verdient levenslang mee als je iemand aanbrengt.",
+  path: "/werknemers",
+});
 
 export default function WerknemersPage() {
   return (

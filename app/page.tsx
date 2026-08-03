@@ -9,6 +9,16 @@ import PhoneMockup from "@/components/marketing/phone-mockup";
 import { BLOG_POSTS, formatBlogDate } from "@/lib/blog";
 import { daysUntilShiftsLive } from "@/lib/feature-flags";
 import { TRIAL_DAYS, VACANCY_PRICING_TIERS } from "@/lib/pricing";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  // Inclusief merknaam: het title-template uit de root layout raakt de
+  // homepage niet, die zit in hetzelfde segment als de layout zelf.
+  title: "Vacatures en personeel zonder uitzendbureau · KLOK Works",
+  description:
+    "De marktplaats voor werk: werkgevers plaatsen vacatures en shifts, werknemers reageren direct. Gratis voor werknemers, vanaf €149 per vacature voor werkgevers — en niemand pakt een marge over je uurloon.",
+  path: "/",
+});
 
 const POPULAR_CHIPS = [
   { label: "🍽️ Horeca", sector: "horeca" },
