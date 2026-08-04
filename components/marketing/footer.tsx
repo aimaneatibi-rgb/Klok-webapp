@@ -42,7 +42,17 @@ export default function MarketingFooter() {
         </div>
 
         <div className="footer-bottom">
-          <div>© 2026 KLOK Works · AVG-compliant</div>
+          <div>
+            © 2026 KLOK Works · AVG-compliant · Gemaakt &amp; beheerd door{" "}
+            <a
+              href="https://kaelo-consulting.com"
+              target="_blank"
+              rel="noopener"
+              style={{ color: "var(--stone-300)" }}
+            >
+              Kaelo Consulting
+            </a>
+          </div>
           <div className="flex gap-3">
             <Link href="/privacy" style={{ color: "var(--stone-500)" }}>
               Privacy
